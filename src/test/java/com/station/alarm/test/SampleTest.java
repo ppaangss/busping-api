@@ -12,13 +12,5 @@ class SampleTest {
 
         assertThat(result).isEqualTo(3);
     }
-
-//    @Test
-//    void 덧셈_오류테스트() {
-//        int result = 1 + 2;
-//
-//        assertThat(result).isEqualTo(4);
-//    }
-
 }
 
