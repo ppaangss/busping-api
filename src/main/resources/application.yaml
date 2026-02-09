@@ -1,3 +1,12 @@
 spring:
   application:
     name: station-alarm
+
+tago:
+  api:
+    key: ${TAGO_API_KEY}
+    type: ${TAGO_API_TYPE:json}
+    default-num-of-rows: ${TAGO_DEFAULT_NUM_OF_ROWS:10}
+
+  station:
+    base-url: ${TAGO_STATION_BASE_URL}
