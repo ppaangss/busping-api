@@ -10,3 +10,4 @@ tago:
 
   station:
     base-url: ${TAGO_STATION_BASE_URL}
+

@@ -1,4 +1,4 @@
-package com.station.alarm.global.exception;
+package com.station.alarm.global.exception.custom;
 
 import com.station.alarm.global.exception.errorcode.ErrorCode;
 

@@ -1,7 +1,7 @@
 package com.station.alarm.global.external.tago;
 
 import com.station.alarm.global.config.RestTemplateConfig;
-import com.station.alarm.global.exception.ExternalApiException;
+import com.station.alarm.global.exception.custom.ExternalApiException;
 import com.station.alarm.global.exception.errorcode.TagoErrorCode;
 import com.station.alarm.station.domain.Station;
 import org.junit.jupiter.api.AfterEach;
