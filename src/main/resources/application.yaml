@@ -11,3 +11,5 @@ tago:
   station:
     base-url: ${TAGO_STATION_BASE_URL}
 
+  arrival:
+    base-url: ${TAGO_ARRIVAL_BASE_URL}
