@@ -127,7 +127,7 @@ public class FavoriteArrivalService {
         Map<String, List<Favorite>> grouped =
                 favorites.stream()
                         .collect(Collectors.groupingBy(
-                                f -> f.getRegionCode() + "_" + f.getStationId()
+                                f -> f.getCityCode() + "_" + f.getStationId()
                         ));
 
         Map<String, StationArrivalGroup> result = new LinkedHashMap<>();
@@ -141,7 +141,7 @@ public class FavoriteArrivalService {
             // 외부 API 호출 (정류장당 1회)
             List<Arrival> arrivals =
                     tagoArrivalClient.fetchRealtimeArrivals(
-                            sample.getRegionCode(),
+                            sample.getCityCode(),
                             sample.getStationId()
                     );
 
