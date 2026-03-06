@@ -31,7 +31,7 @@ public class Favorite {
     private String stationName;
 
     @Column(name = "region_code", nullable = false)
-    private String regionCode;
+    private String cityCode;
 
     @Column(name = "latitude")
     private Double latitude;
@@ -55,7 +55,7 @@ public class Favorite {
             FavoriteFolder folder,
             String stationId,
             String stationName,
-            String regionCode,
+            String cityCode,
             Double latitude,
             Double longitude,
             String routeId,
@@ -65,7 +65,7 @@ public class Favorite {
                 .folder(folder)
                 .stationId(stationId)
                 .stationName(stationName)
-                .regionCode(regionCode)
+                .cityCode(cityCode)
                 .latitude(latitude)
                 .longitude(longitude)
                 .routeId(routeId)
