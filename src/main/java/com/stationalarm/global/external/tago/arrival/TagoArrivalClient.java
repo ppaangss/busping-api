@@ -30,10 +30,7 @@ public class TagoArrivalClient {
     private final TagoProperties props;
     private final TagoArrivalParser parser;
 
-
     /**
-     *
-     *
      * @param cityCode 도시코드
      * @param nodeId 정류장 정보
      * @return

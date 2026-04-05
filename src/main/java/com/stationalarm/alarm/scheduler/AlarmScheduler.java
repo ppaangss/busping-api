@@ -19,8 +19,8 @@ public class AlarmScheduler {
     private final AlarmLockService lockService;
     private final AlarmCoreService coreService;
 
-    @Value("${server.port}")
-    private String port;
+    // @Value("${server.port}")
+    // private String port;
 
     // 이전 실행이 끝난 뒤 30초 후에 다시 실행
     // 임시로 테스트를 위해 30000000으로 길게 해놓음
@@ -39,7 +39,7 @@ public class AlarmScheduler {
             return;
         }
 
-        log.info("서버 포트 = {}, 락 획득 성공", port);
+        // log.info("서버 포트 = {}, 락 획득 성공", port);
 
         try {
             // TODO: 여기서 알람 배치 로직 실행

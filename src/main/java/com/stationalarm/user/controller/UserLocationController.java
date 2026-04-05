@@ -37,7 +37,7 @@ public class UserLocationController {
 
         return SuccessResponse.of(
                 HttpStatus.CREATED,
-                "ㅁㄴㅇ"
+                "현재 위치 정보가 저장되었습니다."
         );
     }
 }

@@ -29,7 +29,7 @@ public class ArrivalController {
 
         return SuccessResponse.of(
                 HttpStatus.OK,
-                "폴더 실시간 도착정보 조회 성공",
+                "정류장 기준 도착 정보 조회 성공",
                 response
         );
     }
