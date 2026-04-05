@@ -35,9 +35,13 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(
+    public ResponseEntity<SuccessResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest request
     ) {
-        return ResponseEntity.ok(userService.login(request));
+        return SuccessResponse.of(
+                HttpStatus.CREATED,
+                "로그인이 완료되었습니다.",
+                userService.login(request)
+        );
     }
 }
