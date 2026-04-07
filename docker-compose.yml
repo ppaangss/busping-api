@@ -41,10 +41,11 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/station_alarm?serverTimezone=Asia/Seoul
-      SPRING_DATASOURCE_USERNAME: app
-      SPRING_DATASOURCE_PASSWORD: 1234
-      SPRING_DATA_REDIS_HOST: redis
+      DB_URL: jdbc:mysql://mysql:3306/station_alarm?serverTimezone=Asia/Seoul
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST: redis
+      
 
 volumes:
   mysql-data:
