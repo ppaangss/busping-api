@@ -1,6 +1,6 @@
 package com.stationalarm.station.dto;
 
-import com.stationalarm.station.domain.Station;
+import com.stationalarm.station.domain.BusStation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,7 +14,10 @@ public class StationResponse {
     private double longitude;
     private String cityCode;
 
-    public static StationResponse from(Station station) {
+    /**
+     * 버스 정류장 엔티티를 클라이언트 응답 DTO로 변환한다.
+     */
+    public static StationResponse from(BusStation station) {
         return new StationResponse(
                 station.getNodeId(),
                 station.getName(),
@@ -24,4 +27,3 @@ public class StationResponse {
         );
     }
 }
-

@@ -9,6 +9,7 @@ public final class DistanceUtils {
     }
 
     /**
+     * Haversine
      * 두 위경도 좌표 사이의 거리를 미터 단위로 반환한다.
      *
      * @param lat1 시작 위도

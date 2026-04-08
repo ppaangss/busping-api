@@ -4,6 +4,9 @@ import com.stationalarm.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "favorite_folders")
 @Getter
@@ -22,6 +25,10 @@ public class FavoriteFolder {
 
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Favorite> favorites = new ArrayList<>();
 
     public static FavoriteFolder create(
         User user,
