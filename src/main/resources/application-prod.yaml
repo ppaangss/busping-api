@@ -31,5 +31,9 @@ tago:
   arrival:
     base-url: ${TAGO_ARRIVAL_BASE_URL:http://apis.data.go.kr/1613000/ArvlInfoInqireService}
 
+alarm:
+  batch:
+    delay-ms: 30000  # 30초
+
 server:
   port: 8080

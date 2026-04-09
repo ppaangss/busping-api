@@ -30,7 +30,7 @@ public class Favorite {
     @Column(name = "station_name", nullable = false)
     private String stationName;
 
-    @Column(name = "region_code", nullable = false)
+    @Column(name = "city_code", nullable = false)
     private String cityCode;
 
     @Column(name = "latitude")

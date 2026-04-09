@@ -21,10 +21,18 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+/**
+ * RestTemplate 기반 TAGO 도착정보 클라이언트 (REST API 단건 조회용)
+ *
+ * 사용자가 앱에서 직접 도착정보를 조회할 때 사용한다.
+ * 호출 시 스레드가 응답을 기다리는 동안 블로킹된다.
+ *
+ * 알람 배치의 병렬 호출에는 TagoArrivalWebClient(WebClient 방식)를 사용한다.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class TagoArrivalClient {
+public class TagoArrivalClient implements TagoArrivalPort {
 
     private final RestTemplate restTemplate;
     private final TagoProperties props;

@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/signup").permitAll()
                         .requestMatchers("/api/login").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/test/**").permitAll()
                         .anyRequest().authenticated()                     // 나머지는 인증이 필요함
                 )
 

@@ -4,9 +4,11 @@ import com.stationalarm.arrival.domain.Arrival;
 import com.stationalarm.arrival.dto.ArrivalItem;
 import com.stationalarm.arrival.dto.RouteArrivalResponse;
 import com.stationalarm.arrival.dto.StationArrivalResponse;
-import com.stationalarm.global.external.tago.arrival.TagoArrivalClient;
+import com.stationalarm.global.external.tago.arrival.TagoArrivalPort;
+import com.stationalarm.global.external.tago.arrival.TagoArrivalWebClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.List;
@@ -17,7 +19,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ArrivalService {
-    private final TagoArrivalClient tagoArrivalClient;
+    private final TagoArrivalPort tagoArrivalClient;
+    private final TagoArrivalWebClient tagoArrivalWebClient;
 
 
     public StationArrivalResponse getGroupedArrivalsResponse(
@@ -69,6 +72,28 @@ public class ArrivalService {
      * @param stationId 정류장 ID
      * @return routeId 기준으로 정렬된 Map (route 내부는 도착시간 오름차순 정렬)
      */
+    /**
+     * 알람 배치 전용 비동기 도착정보 조회 메서드
+     * WebClient를 사용해 Mono(비동기 단일 값)로 반환하며,
+     * AlarmCoreService에서 Flux.flatMap()으로 병렬 호출될 때 사용된다.
+     * getGroupedArrivals()와 동일한 그룹핑/정렬 로직이지만 반환 타입이 다르다.
+     *
+     * @return Mono: 미래에 도착할 결과를 감싼 비동기 컨테이너
+     */
+    public Mono<Map<String, List<Arrival>>> getGroupedArrivalsMono(String cityCode, String stationId) {
+        return tagoArrivalWebClient.fetchRealtimeArrivals(cityCode, stationId)
+                .map(arrivals -> {
+                    if (arrivals == null || arrivals.isEmpty()) return Map.<String, List<Arrival>>of();
+                    // routeId 기준 그룹핑 (TreeMap: 문자열 오름차순 정렬)
+                    Map<String, List<Arrival>> grouped = arrivals.stream()
+                            .collect(Collectors.groupingBy(Arrival::getRouteId, TreeMap::new, Collectors.toList()));
+                    // 각 노선 내부는 도착시간 오름차순 정렬
+                    grouped.values().forEach(list ->
+                            list.sort(Comparator.comparingInt(Arrival::getRemainingMinutes)));
+                    return grouped;
+                });
+    }
+
     public Map<String, List<Arrival>> getGroupedArrivals(
             String cityCode,
             String stationId
