@@ -39,7 +39,7 @@ public class UserController {
             @Valid @RequestBody LoginRequest request
     ) {
         return SuccessResponse.of(
-                HttpStatus.CREATED,
+                HttpStatus.OK,
                 "로그인이 완료되었습니다.",
                 userService.login(request)
         );

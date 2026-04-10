@@ -1,5 +1,6 @@
 package com.stationalarm.global.exception;
 
+import com.stationalarm.global.exception.custom.BusinessException;
 import com.stationalarm.global.exception.custom.ExternalApiException;
 import com.stationalarm.global.exception.errorcode.CommonErrorCode;
 import com.stationalarm.global.exception.errorcode.ErrorCode;
@@ -12,6 +13,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice // 모든 컨트롤러에서 발생하는 예외를 전역에서 처리
 public class GlobalExceptionHandler {
+
+    /**
+     * 비즈니스 로직 예외 처리
+     *
+     * 로그인 실패, 중복 이메일 등 서비스 계층에서 던지는 예외
+     * → ErrorCode에 정의된 HTTP 상태코드와 메시지로 응답
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            BusinessException e
+    ) {
+        log.warn("[Business Error] {}", e.getMessage());
+
+        return handleExceptionInternal(e.getErrorCode());
+    }
 
     /**
      * 외부 API 호출 중 발생한 예외 처리
@@ -37,7 +53,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException e
     ) {
-        log.warn("[Validation Error] {}", e.getMessage());
+        e.getBindingResult().getFieldErrors().forEach(error ->
+                log.warn("[Validation Error] field={}, value={}, message={}",
+                        error.getField(), error.getRejectedValue(), error.getDefaultMessage())
+        );
 
         return handleExceptionInternal(
                 CommonErrorCode.VALIDATION_FAILED

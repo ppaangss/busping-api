@@ -3,7 +3,7 @@ package com.stationalarm.user.service;
 
 import com.stationalarm.global.security.JwtTokenProvider;
 import com.stationalarm.global.exception.custom.BusinessException;
-import com.stationalarm.global.exception.errorcode.CommonErrorCode;
+import com.stationalarm.global.exception.errorcode.UserErrorCode;
 import com.stationalarm.user.domain.User;
 import com.stationalarm.user.domain.UserRepository;
 import com.stationalarm.user.dto.login.LoginRequest;
@@ -38,7 +38,7 @@ public class UserService {
 
         // 1. 이메일 중복 검사
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BusinessException(CommonErrorCode.DUPLICATE_RESOURCE);
+            throw new BusinessException(UserErrorCode.DUPLICATE_EMAIL);
         }
 
         // 2. 비밀번호 암호화
@@ -60,11 +60,11 @@ public class UserService {
 
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
-                        new BusinessException(CommonErrorCode.UNAUTHORIZED)
+                        new BusinessException(UserErrorCode.INVALID_CREDENTIALS)
                 );
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new BusinessException(CommonErrorCode.UNAUTHORIZED);
+            throw new BusinessException(UserErrorCode.INVALID_CREDENTIALS);
         }
 
         String accessToken = jwtTokenProvider.createToken(
