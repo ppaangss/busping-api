@@ -12,13 +12,11 @@ import lombok.Getter;
 public class ErrorResponse {
 
     private int status;     // HTTP 상태코드
-    private String code;    // 서비스 내부 에러 코드 (C001 등)
     private String message; // 사용자에게 보여줄 메시지
 
     public static ErrorResponse of(ErrorCode errorCode) {
         return new ErrorResponse(
                 errorCode.getHttpStatus().value(),
-                errorCode.getCode(),
                 errorCode.getMessage()
         );
     }
