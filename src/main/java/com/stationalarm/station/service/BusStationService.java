@@ -9,12 +9,16 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+/**
+ * 사용자 위치 기반으로 주변 버스 정류장을 조회하는 서비스.
+ * 외부 API 없이 DB만 사용하며, 바운딩 박스 1차 필터 후 Haversine 2차 필터로 정확한 반경 검색을 수행한다.
+ */
 @Service
 @RequiredArgsConstructor
 public class BusStationService {
 
-    private static final double SEARCH_RADIUS_METERS = 1_000;
-    private static final int MAX_RESULTS = 20;
+    private static final double SEARCH_RADIUS_METERS = 1_000; // 검색 반경 (미터)
+    private static final int MAX_RESULTS = 20; // 최대 반환 정류장 수Z
 
     private final BusStationRepository busStationRepository;
 
@@ -25,6 +29,7 @@ public class BusStationService {
             double lat,
             double lng
     ) {
+        // 1차 필터: 위경도 범위로 바운딩 박스를 구성해 DB에서 후보군을 빠르게 추출
         double latitudeDelta = metersToLatitudeDelta(SEARCH_RADIUS_METERS);
         double longitudeDelta = metersToLongitudeDelta(lat, SEARCH_RADIUS_METERS);
 
@@ -36,6 +41,7 @@ public class BusStationService {
                         lng + longitudeDelta
                 );
 
+        // 2차 필터: Haversine 공식으로 실거리를 계산해 정확한 반경 내 정류장만 추출, 가까운 순 정렬
         return stations.stream()
                 .filter(station -> isWithinRadius(lat, lng, station))
                 .sorted(Comparator.comparingDouble(
