@@ -28,7 +28,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
     @Query("""
     SELECT f
     FROM Favorite f
-    JOIN f.folder fo
+    JOIN FETCH f.folder fo
+    JOIN FETCH fo.user
     WHERE fo.user.id IN :userIds
 """)
     List<Favorite> findByUserIds(List<Long> userIds);

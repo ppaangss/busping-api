@@ -20,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * RestTemplate 기반 TAGO 도착정보 클라이언트 (REST API 단건 조회용)
@@ -37,6 +38,7 @@ public class TagoArrivalClient implements TagoArrivalPort {
     private final RestTemplate restTemplate;
     private final TagoProperties props;
     private final TagoArrivalParser parser;
+    private final AtomicLong callCount = new AtomicLong(0);
 
     /**
      * @param cityCode 도시코드
@@ -62,8 +64,12 @@ public class TagoArrivalClient implements TagoArrivalPort {
                 .toUriString();
 
         try {
+            long callNumber = callCount.incrementAndGet();
+            long start = System.currentTimeMillis();
             ResponseEntity<String> response =
                     restTemplate.getForEntity(url, String.class);
+            long elapsed = System.currentTimeMillis() - start;
+            log.info("[TAGO] #{} {}ms (cityCode={}, nodeId={})", callNumber, elapsed, cityCode, nodeId);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new RetryableExternalApiException(TagoErrorCode.SERVER_ERROR);

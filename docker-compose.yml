@@ -40,7 +40,8 @@ services:
       redis:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: dev,benchmark
+      SPRING_PROFILES_ACTIVE: dev
+#      ,benchmark
       DB_URL: jdbc:mysql://mysql:3306/station_alarm?serverTimezone=Asia/Seoul
       DB_USERNAME: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}

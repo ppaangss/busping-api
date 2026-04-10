@@ -49,3 +49,7 @@ API.md
 # Gradle user home (로컬 캐시)
 .gradle-user-home/
 
+
+load-test-api.js
+load-test-batch.js
+load-test.js

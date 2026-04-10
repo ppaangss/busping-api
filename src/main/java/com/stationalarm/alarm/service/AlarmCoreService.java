@@ -47,18 +47,21 @@ public class AlarmCoreService {
         Instant start = Instant.now();
         log.info("[ALARM] runCycle start");
 
+        // 활성 유저 조회
         List<User> activeUsers = findActiveUsers();
         if (activeUsers.isEmpty()) {
             log.info("[ALARM] 처리할 활성 유저 없음. 사이클 종료.");
             return;
         }
 
+        // 활성유저의 즐겨찾기 조회
         Map<Long, List<Favorite>> nearbyFavoritesByUser = findNearbyFavorites(activeUsers);
         if (nearbyFavoritesByUser.isEmpty()) {
             log.info("[ALARM] 500m 이내 즐겨찾기 없음. 사이클 종료.");
             return;
         }
 
+        //
         Map<StationKey, Map<String, List<Arrival>>> arrivalsByStation = fetchArrivals(nearbyFavoritesByUser);
 
         List<AlarmCandidate> candidates = buildCandidates(nearbyFavoritesByUser, arrivalsByStation);
