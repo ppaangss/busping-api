@@ -1,6 +1,7 @@
 package com.stationalarm.alarm;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +13,8 @@ public class AlarmCooldownManager {
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final Duration COOLDOWN = Duration.ofMinutes(3);
+    @Value("${alarm.batch.cooldown-seconds}")
+    private long cooldownSeconds;
 
     public boolean tryAcquireCooldown(
             Long userId,
@@ -24,7 +26,7 @@ public class AlarmCooldownManager {
         String key = buildKey(userId, cityCode, stationId, routeId);
 
         Boolean success = redisTemplate.opsForValue()
-                .setIfAbsent(key, "1", COOLDOWN);
+                .setIfAbsent(key, "1", Duration.ofSeconds(cooldownSeconds));
 
         return Boolean.TRUE.equals(success);
     }

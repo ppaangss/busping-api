@@ -49,3 +49,11 @@ API.md
 # Gradle user home (로컬 캐시)
 .gradle-user-home/
 
+
+benchmark-case1.sql
+benchmark-case2.sql
+benchmark-case3.sql
+
+load-test-api.js
+load-test-batch.js
+load-test.js

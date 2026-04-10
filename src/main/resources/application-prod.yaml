@@ -33,7 +33,8 @@ tago:
 
 alarm:
   batch:
-    delay-ms: 30000  # 30초
+    delay-ms: 60  # 알람 스케줄링 주기
+    cooldown-seconds: 60 # Redis TTL 주기
 
 server:
   port: 8080

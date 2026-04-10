@@ -19,13 +19,14 @@ public class FakeTagoArrivalClient implements TagoArrivalPort {
 
     @Override
     public List<Arrival> fetchRealtimeArrivals(String cityCode, String nodeId) {
-        //log.info("[FAKE] 요청 시작 stationId={} thread={}", nodeId, Thread.currentThread().getName());
+        long start = System.currentTimeMillis();
         try {
             Thread.sleep(FAKE_LATENCY_MS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-        //log.info("[FAKE] 요청 완료 stationId={} thread={}", nodeId, Thread.currentThread().getName());
+        long elapsed = System.currentTimeMillis() - start;
+        log.info("[TAGO Fake] {}ms (cityCode={}, nodeId={})", elapsed, cityCode, nodeId);
         return List.of();
     }
 }

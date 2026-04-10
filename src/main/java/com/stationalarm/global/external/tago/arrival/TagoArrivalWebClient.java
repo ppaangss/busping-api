@@ -6,10 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 알람 배치 병렬 호출 전용 WebClient 기반 TAGO 도착정보 클라이언트
@@ -27,6 +29,7 @@ public class TagoArrivalWebClient {
     private final WebClient webClient;
     private final TagoProperties props;
     private final TagoArrivalParser parser;
+    private final AtomicLong callCount = new AtomicLong(0);
 
     public TagoArrivalWebClient(WebClient.Builder builder, TagoProperties props, TagoArrivalParser parser) {
         // WebClient.Builder는 Spring이 자동 주입해주는 빌더
@@ -44,6 +47,7 @@ public class TagoArrivalWebClient {
      *         구독(subscribe) 또는 block() 호출 시 실제 HTTP 요청이 발생한다.
      */
     public Mono<List<Arrival>> fetchRealtimeArrivals(String cityCode, String nodeId) {
+        long callNumber = callCount.incrementAndGet();
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/getSttnAcctoArvlPrearngeInfoList")
@@ -53,9 +57,13 @@ public class TagoArrivalWebClient {
                         .queryParam("numOfRows", props.getApi().getDefaultNumOfRows())
                         .queryParam("_type", props.getApi().getType())
                         .build())
-                .retrieve()                          // HTTP 응답 받기 시작
-                .bodyToMono(String.class)            // 응답 body를 String으로 변환 (비동기)
-                .map(parser::parseArrival)           // String → List<Arrival> 파싱
-                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1))); // 실패 시 1초 간격 최대 3회 재시도
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(parser::parseArrival)
+                .elapsed()
+                .doOnNext(t -> log.info("[TAGO] #{} {}ms (cityCode={}, nodeId={})",
+                        callNumber, t.getT1(), cityCode, nodeId))
+                .map(Tuple2::getT2)
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(1)));
     }
 }
