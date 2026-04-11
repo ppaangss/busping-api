@@ -16,7 +16,12 @@ public enum UserErrorCode implements ErrorCode {
     /**
      * 이미 가입된 이메일로 회원가입 시도
      */
-    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "U002", "이미 사용 중인 이메일입니다.");
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "U002", "이미 사용 중인 이메일입니다."),
+
+    /**
+     * 존재하지 않는 유저
+     */
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U003", "존재하지 않는 사용자입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

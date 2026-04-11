@@ -61,6 +61,9 @@ dependencies {
 
 	// WebFlux (WebClient 병렬 호출용)
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	// Firebase Admin SDK (FCM 발송용)
+	implementation 'com.google.firebase:firebase-admin:9.4.1'
 }
 
 tasks.named('test') {

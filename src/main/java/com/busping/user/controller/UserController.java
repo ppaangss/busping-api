@@ -2,6 +2,8 @@ package com.busping.user.controller;
 
 
 import com.busping.global.common.SuccessResponse;
+import com.busping.global.security.CustomUserDetails;
+import com.busping.user.dto.fcm.FcmTokenRequest;
 import com.busping.user.dto.login.LoginRequest;
 import com.busping.user.dto.login.LoginResponse;
 import com.busping.user.dto.signup.SignupRequest;
@@ -11,10 +13,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -43,5 +44,14 @@ public class UserController {
                 "로그인이 완료되었습니다.",
                 userService.login(request)
         );
+    }
+
+    @PatchMapping("/users/fcm-token")
+    public ResponseEntity<SuccessResponse<Void>> updateFcmToken(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody FcmTokenRequest request
+    ) {
+        userService.updateFcmToken(userDetails.getId(), request.fcmToken());
+        return SuccessResponse.of(HttpStatus.OK, "FCM 토큰이 등록되었습니다.", null);
     }
 }
