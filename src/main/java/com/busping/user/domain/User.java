@@ -32,6 +32,9 @@ public class User {
     @Column
     private LocalDateTime lastLocationUpdatedAt;
 
+    @Column(length = 500)
+    private String fcmToken;
+
     public static User create(
             String email,
             String password
@@ -46,5 +49,9 @@ public class User {
         this.latitude = lat;
         this.longitude = lng;
         this.lastLocationUpdatedAt = LocalDateTime.now();
+    }
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }

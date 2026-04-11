@@ -56,6 +56,12 @@ public class UserService {
         return SignupResponse.from(savedUser);
     }
 
+    public void updateFcmToken(Long userId, String fcmToken) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(UserErrorCode.USER_NOT_FOUND));
+        user.updateFcmToken(fcmToken);
+    }
+
     public LoginResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())

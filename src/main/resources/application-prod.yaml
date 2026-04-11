@@ -36,5 +36,8 @@ alarm:
     delay-ms: 60  # 알람 스케줄링 주기
     cooldown-seconds: 60 # Redis TTL 주기
 
+firebase:
+  credentials-path: ${FIREBASE_CREDENTIALS_PATH:serviceAccountKey.json}
+
 server:
   port: 8080
