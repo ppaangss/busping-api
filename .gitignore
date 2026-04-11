@@ -46,6 +46,7 @@ application-dev.yaml
 CLAUDE.md
 API.md
 SERVICE_INTRO.md
+ALARM_PLAN.md
 
 # Gradle user home (로컬 캐시)
 .gradle-user-home/
@@ -58,3 +59,6 @@ benchmark-case3.sql
 load-test-api.js
 load-test-batch.js
 load-test.js
+
+# Firebase 서비스 계정 키 (절대 커밋 금지)
+serviceAccountKey.json
