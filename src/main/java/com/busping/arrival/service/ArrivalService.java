@@ -35,9 +35,8 @@ public class ArrivalService {
     //   1. Redis에서 "arrivals::cityCode:stationId" 키 조회
     //   2. 히트 → 메서드 실행 없이 캐시 값 즉시 반환
     //   3. 미스 → 메서드 실행 → 결과를 Redis에 저장 후 반환
-    @Cacheable(value = CACHE_NAME, key = "#cityCode + ':' + #stationId")
     public StationArrivalResponse getGroupedArrivalsResponse(String cityCode, String stationId) {
-        // 캐시 미스일 때만 실행됨
+        // getGroupedArrivals()가 캐시를 담당 → 캐시 히트 시 TAGO API 호출 없이 반환
         Map<String, List<Arrival>> grouped = getGroupedArrivals(cityCode, stationId);
 
         List<RouteArrivalResponse> routes = grouped.entrySet().stream()
@@ -92,6 +91,7 @@ public class ArrivalService {
                 });
     }
 
+    @Cacheable(value = CACHE_NAME, key = "#cityCode + ':' + #stationId")
     public Map<String, List<Arrival>> getGroupedArrivals(String cityCode, String stationId) {
         List<Arrival> arrivals = tagoArrivalClient.fetchRealtimeArrivals(cityCode, stationId);
 

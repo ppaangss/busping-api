@@ -7,6 +7,7 @@ import com.busping.arrival.domain.StationKey;
 import com.busping.arrival.service.ArrivalService;
 import com.busping.favorite.domain.Favorite;
 import com.busping.favorite.domain.FavoriteRepository;
+import com.busping.global.external.fcm.FcmService;
 import com.busping.global.util.DistanceUtils;
 import com.busping.user.domain.User;
 import com.busping.user.domain.UserRepository;
@@ -38,6 +39,7 @@ public class AlarmCoreService {
     private final FavoriteRepository favoriteRepository;
     private final ArrivalService arrivalService;
     private final AlarmCooldownManager cooldownManager;
+    private final FcmService fcmService;
 
     /**
      * 배치 사이클 진입점 — 각 단계를 순서대로 호출하는 오케스트레이터
@@ -214,30 +216,27 @@ public class AlarmCoreService {
     private void sendAlarms(List<AlarmCandidate> candidates) {
         for (AlarmCandidate candidate : candidates) {
 
-            boolean acquired = cooldownManager.tryAcquireCooldown(
-                    candidate.userId(),
-                    candidate.cityCode(),
-                    candidate.stationId(),
-                    candidate.routeId()
-            );
+            // TODO: 테스트 완료 후 쿨다운 복구
+            // boolean acquired = cooldownManager.tryAcquireCooldown(...);
+            // if (!acquired) { continue; }
 
-            if (!acquired) {
-                log.info("[ALARM] cooldown skip userId={} routeId={} stationId={}",
-                        candidate.userId(), candidate.routeId(), candidate.stationId());
-                continue;
-            }
-
-            // 실제 알람 발송 대신 로그
-            log.info("[ALARM SEND] userId={} station={} route={} bus={} remaining={}min stops={}",
-                    candidate.userId(),
-                    candidate.stationName(),
-                    candidate.routeId(),
-                    candidate.busNumber(),
-                    candidate.remainingMinutes(),
-                    candidate.remainingStops()
-            );
-
-            // sendAlarm(candidate);
+            userRepository.findById(candidate.userId()).ifPresentOrElse(user -> {
+                String fcmToken = user.getFcmToken();
+                if (fcmToken == null) {
+                    log.info("[ALARM] FCM 토큰 없음 skip userId={}", candidate.userId());
+                    return;
+                }
+                try {
+                    String title = candidate.busNumber() + " (" + candidate.stationName() + ")";
+                    String body = candidate.remainingMinutes() + "분 후 도착 (" + candidate.remainingStops() + "정거장 전)";
+                    fcmService.send(fcmToken, title, body);
+                    log.info("[ALARM SEND] userId={} station={} route={} bus={} remaining={}min",
+                            candidate.userId(), candidate.stationName(), candidate.routeId(),
+                            candidate.busNumber(), candidate.remainingMinutes());
+                } catch (Exception e) {
+                    log.error("[ALARM] FCM 발송 실패 userId={}", candidate.userId(), e);
+                }
+            }, () -> log.warn("[ALARM] 유저 없음 userId={}", candidate.userId()));
         }
     }
 }
