@@ -19,7 +19,6 @@
 
 사용자가 직접 앱을 찾아 들어가는 수동적인 방식이 아니라, **위치를 기반으로 필요한 정보를 먼저 제안해 주는 서비스**가 있다면 불필요한 탐색 시간을 획기적으로 줄일 수 있을 거라 확신했습니다. 시중에 이만큼 직관적인 '선제적 알림' 기능을 갖춘 앱이 없었기에, 직접 해결사가 되어 보기로 했습니다. 그렇게 탄생한 것이 위치 기반 버스 도착 알림 서비스, **'버스핑'입니다**.
 
----
 ### ✨서비스 소개
 
 > **"찾지 마세요, 버스핑이 먼저 알려드릴게요!"**
@@ -30,7 +29,6 @@
     
 - **⚡ Zero-Step UX**: 앱을 열고, 검색하고, 정류장을 찾는 번거로움 없이 스마트폰을 확인하는 것만으로 모든 정보를 파악합니다.
 
----
 ### 🎯서비스 대상
 
 **버스핑**은 매일 같은 경로를 이동하며 '정보를 찾는 행위' 자체에 피로감을 느끼는 모든 분을 위해 만들어졌습니다.
@@ -47,7 +45,6 @@
     
     - 역에서 나오자마자 버스 도착 정보를 즉시 확인하여, 걸어갈지 뛰어갈지 빠르게 판단하고 싶은 분
 
----
 ## 서비스 화면 및 기능 소개
 
 ### 1. ✅주변 정류장 검색 & 실시간 도착 정보 조회
@@ -57,11 +54,24 @@
  - 정류장별 버스 도착 예정 시간 및 남은 정거장 수 제공
  - Redis 캐시(TTL 60초)로 외부 API 호출 최소화
 
+<figure class="half">
+    <a href="link"><img src="https://github.com/user-attachments/assets/22f2b90b-f34a-418b-98c8-cfa9c9e390a2" height="500px"></img></a>
+    <a href="link"><img src="https://github.com/user-attachments/assets/21ff8083-de0c-473c-9745-6276bd27c9d6" height="500px"></img></a>
+</figure>
+
+
 ### 2.  ✅즐겨찾기 관리
 
  - 폴더 단위로 버스 노선을 묶어서 관리
  - 하나의 즐겨찾기는 정류장 + 버스 노선 한 쌍으로 구성
- - 폴더 생성/수정/삭제, 노선 추가/삭제0
+ - 폴더 생성/수정/삭제, 노선 추가/삭제
+
+<img src="https://github.com/user-attachments/assets/265a3f0b-8735-4e80-8760-dfb02e91033f" height="500px">
+<figure class="half">
+    <a href="link"><img src="https://github.com/user-attachments/assets/798db649-d88f-4c57-828c-fdf3ffb1aa38" height="500px"></img></a>
+    <a href="link"><img src="https://github.com/user-attachments/assets/0e9b0b93-cb5b-4685-9deb-6d94fd54e4b2" height="500px"></img></a>
+</figure>
+
 
 ### 3.  ✅위치 기반 자동 알람
 
@@ -70,29 +80,44 @@
  - 500m 이내로 근접하면 자동으로 버스 도착 정보 푸시 알림 발송
  - Redis 쿨다운으로 같은 정류장에 대한 중복 알람 방지
 
+<img src="https://github.com/user-attachments/assets/f614648e-f8d5-421f-b27f-a204cab440ca" height="500px"></img>
+<img src="https://github.com/user-attachments/assets/fce24529-54d5-4b0d-b2f6-57838320f5b1" height="500px"></img>
+
 ## 🛠Tect Stack
+
+<div> 
+    <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> 
+    <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
+    <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> 
+    <img src="https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=white">
+    <img src="https://img.shields.io/badge/flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white">
+</div>
+
+### 버전
 
 Java 17.0.12
 
 Spring Boot 3.5.10
 
 MySQL 8 
+
 Redis 7
+
 FCM 9.4.1
 
 Flutter SDK ^3.5.4
+
 flutter_naver_map 1.4.1+1
 
 ## 프로젝트 구조
 
 ### ERD
 
-
+<img width="861" height="505" alt="Image" src="https://github.com/user-attachments/assets/5b145fde-8c85-437e-814f-dc4d95cb0ae5" />
 
 ### 아키텍처
 
 배포 전
-
 
 
 ## 추후 개발 목록
@@ -108,4 +133,8 @@ flutter_naver_map 1.4.1+1
 
 하나의 앱을 1차 MVP까지 완성하니까 대충 프로젝트가 어떤 구조인지 알게되었다. 여기에 배포까지 잘 마무리해서 실제로 한 번 사용해보고 싶다.
 
-물론 나는 최선을 다하여 1차 MVP를 만들고 생각했다. 이제 내 기능의 핵심은 이제 버스 도착 정보인데 버스 도착정보가 정확하지 않다고 생각되면 결국 이 앱의 전부가 사라지는 것이다. 그래서 나는 이 앱은 결코 상품으로 내놓는(? 맞나 뭐라하지 수익화? 쩃든 스토어 배포는) 는 아쉽게도 없다고 판단했다. 그래서 이제 개발연습용으로 사용하거나 아니면 나 혼자 사용해보거나, 아니면 다른 도착정보 API를 시도해볼 계획이다.
+1차 MVP를 완성하며 가장 고민했던 지점은 서비스의 '신뢰성'이었다. 우리 서비의 핵심 가치는 정확한 버스 도착 정보에 있지만, 현재 TAGO API의 데이터 정합성을 검토한 결과 사용자가 신뢰할 수 있는 수준의 정확도를 확보하는 것은 좀 어렵다고 생각했다.
+
+단순히 기능을 구현하는 것에 그치지 않고, "과연 이 서비스가 사용자에게 가치를 줄 수 있는가?"를 자문했을 때, 현재의 데이터 품질로는 시장에 내놓을 수준의 '상품'이 되기 어렵다고 판단했다.
+
+그래도 비록 스토어 배포라는 목표는 잠시 미루게 되었지만, 이번 프로젝트는 기술적 구현력을 높이는 소중한 연습 과정이 되었다. 향후 더 정교한 공공 데이터 활용 방안이나 대체 API를 탐색하며, 서비스의 본질인 '정확성'을 확보하는 도전을 계속 이어갈 예정이다.
