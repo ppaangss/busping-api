@@ -23,7 +23,7 @@ public class FavoriteArrivalController {
     /**
      * 폴더 내 즐겨찾기 도착정보 조회 (거리 필터 없음)
      * - 폴더에 등록된 모든 즐겨찾기의 실시간 도착정보를 반환한다.
-     * - TAGO API를 직접 호출하며 Redis 캐시를 사용하지 않는다.
+     * - ArrivalService를 경유하므로 Redis 캐시가 적용된다.
      */
     @GetMapping("/{folderId}/realtime")
     public ResponseEntity<SuccessResponse<FolderArrivalResponse>> getFolderRealtime(
