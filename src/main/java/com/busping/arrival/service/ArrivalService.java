@@ -20,8 +20,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArrivalService {
 
-    private final TagoArrivalPort tagoArrivalClient;         // RestTemplate 기반 (REST API 단건 조회용)
-    private final TagoArrivalWebClient tagoArrivalWebClient; // WebClient 기반 (알람 배치 병렬 조회용)
+    private final TagoArrivalPort tagoArrivalClient;
+    private final TagoArrivalWebClient tagoArrivalWebClient;
 
     public StationArrivalResponse getGroupedArrivalsResponse(String cityCode, String stationId) {
         Map<String, List<Arrival>> grouped = getGroupedArrivals(cityCode, stationId);
@@ -32,11 +32,11 @@ public class ArrivalService {
                     List<Arrival> list = entry.getValue();
                     String busNumber = list.get(0).getBusNumber();
                     List<ArrivalItem> items = list.stream()
-                            .map(a -> new ArrivalItem(
-                                    a.getRemainingMinutes(),
-                                    a.getRemainingStops(),
-                                    a.getRouteType(),
-                                    a.getVehicleType()
+                            .map(arrival -> new ArrivalItem(
+                                    arrival.getRemainingMinutes(),
+                                    arrival.getRemainingStops(),
+                                    arrival.getRouteType(),
+                                    arrival.getVehicleType()
                             ))
                             .toList();
                     return new RouteArrivalResponse(routeId, busNumber, items);
@@ -46,29 +46,21 @@ public class ArrivalService {
         return new StationArrivalResponse(routes);
     }
 
-    // 알람 배치 경로: WebClient로 TAGO API 호출
     public Mono<Map<String, List<Arrival>>> getGroupedArrivalsMono(String cityCode, String stationId) {
         return tagoArrivalWebClient.fetchRealtimeArrivals(cityCode, stationId)
-                .map(arrivals -> {
-                    if (arrivals == null || arrivals.isEmpty()) return Map.<String, List<Arrival>>of();
-                    // routeId 기준 그룹핑 (TreeMap: 문자열 오름차순 정렬)
-                    Map<String, List<Arrival>> grouped = arrivals.stream()
-                            .collect(Collectors.groupingBy(Arrival::getRouteId, TreeMap::new, Collectors.toList()));
-                    // 각 노선 내부는 도착시간 오름차순 정렬
-                    grouped.values().forEach(list ->
-                            list.sort(Comparator.comparingInt(Arrival::getRemainingMinutes)));
-                    return grouped;
-                });
+                .map(this::groupByRoute);
     }
 
     public Map<String, List<Arrival>> getGroupedArrivals(String cityCode, String stationId) {
         List<Arrival> arrivals = tagoArrivalClient.fetchRealtimeArrivals(cityCode, stationId);
+        return groupByRoute(arrivals);
+    }
 
+    private Map<String, List<Arrival>> groupByRoute(List<Arrival> arrivals) {
         if (arrivals == null || arrivals.isEmpty()) {
             return Map.of();
         }
 
-        // routeId 문자열 기준 정렬
         Map<String, List<Arrival>> grouped = arrivals.stream()
                 .collect(Collectors.groupingBy(
                         Arrival::getRouteId,
@@ -76,7 +68,6 @@ public class ArrivalService {
                         Collectors.toList()
                 ));
 
-        // 각 route 내부 도착시간 기준 오름차순 정렬
         grouped.values().forEach(list ->
                 list.sort(Comparator.comparingInt(Arrival::getRemainingMinutes))
         );

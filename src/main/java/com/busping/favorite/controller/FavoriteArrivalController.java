@@ -23,7 +23,7 @@ public class FavoriteArrivalController {
     /**
      * 폴더 내 즐겨찾기 도착정보 조회 (거리 필터 없음)
      * - 폴더에 등록된 모든 즐겨찾기의 실시간 도착정보를 반환한다.
-     * - TAGO API를 직접 호출해 도착정보를 조회한다.
+     * - ArrivalService를 경유해 TAGO 도착정보를 조회한다.
      */
     @GetMapping("/{folderId}/realtime")
     public ResponseEntity<SuccessResponse<FolderArrivalResponse>> getFolderRealtime(
