@@ -3,8 +3,6 @@ package com.busping.user.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "users")
 @Getter
@@ -23,15 +21,6 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column
-    private Double latitude;
-
-    @Column
-    private Double longitude;
-
-    @Column
-    private LocalDateTime lastLocationUpdatedAt;
-
     @Column(length = 500)
     private String fcmToken;
 
@@ -43,12 +32,6 @@ public class User {
                 .email(email)
                 .password(password)
                 .build();
-    }
-
-    public void updateLocation(Double lat, Double lng) {
-        this.latitude = lat;
-        this.longitude = lng;
-        this.lastLocationUpdatedAt = LocalDateTime.now();
     }
 
     public void updateFcmToken(String fcmToken) {

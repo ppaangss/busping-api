@@ -11,8 +11,6 @@ import com.busping.favorite.dto.FolderArrivalResponse;
 import com.busping.global.exception.custom.BusinessException;
 import com.busping.global.exception.errorcode.CommonErrorCode;
 import com.busping.global.util.DistanceUtils;
-import com.busping.user.domain.User;
-import com.busping.user.domain.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +30,6 @@ public class FavoriteArrivalService {
 
     private final FavoriteRepository favoriteRepository;
     private final FavoriteFolderRepository favoriteFolderRepository;
-    private final UserRepository userRepository;
     private final ArrivalService arrivalService;
 
     public FolderArrivalResponse getArrivalsByFolder(Long userId, Long folderId) {
@@ -52,10 +49,10 @@ public class FavoriteArrivalService {
         );
     }
 
-    public FolderArrivalResponse getNearbyArrivalsByFolder(Long userId, Long folderId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
+    /**
+     * 요청 좌표 기준 500m 이내 즐겨찾기만 도착정보 조회 - 위치는 저장하지 않고 요청에서 받는다
+     */
+    public FolderArrivalResponse getNearbyArrivalsByFolder(Long userId, Long folderId, double latitude, double longitude) {
         FavoriteFolder folder = favoriteFolderRepository
                 .findByIdAndUser_Id(folderId, userId)
                 .orElseThrow(() -> new BusinessException(CommonErrorCode.RESOURCE_NOT_FOUND));
@@ -65,13 +62,9 @@ public class FavoriteArrivalService {
             return new FolderArrivalResponse(folder.getId(), folder.getName(), List.of());
         }
 
-        if (user.getLatitude() == null || user.getLongitude() == null) {
-            throw new BusinessException(CommonErrorCode.INVALID_PARAMETER);
-        }
-
         List<Favorite> nearbyFavorites = favorites.stream()
                 .filter(f -> DistanceUtils.calculateDistance(
-                        user.getLatitude(), user.getLongitude(),
+                        latitude, longitude,
                         f.getLatitude(), f.getLongitude()
                 ) <= RADIUS_METERS)
                 .toList();
