@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/signup").permitAll()
                         .requestMatchers("/api/login").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/devices").permitAll() // 디바이스 등록은 무인증 (Security 철거 시 함께 삭제)
                         .requestMatchers("/test/**").permitAll()
                         .anyRequest().authenticated()                     // 나머지는 인증이 필요함
                 )
