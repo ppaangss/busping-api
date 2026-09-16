@@ -1,6 +1,6 @@
 package com.busping.favorite.domain;
 
-import com.busping.user.domain.User;
+import com.busping.device.domain.Device;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,8 +20,8 @@ public class FavoriteFolder {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "device_id", nullable = false)
+    private Device device;
 
     @Column(nullable = false)
     private String name;
@@ -31,11 +31,11 @@ public class FavoriteFolder {
     private List<Favorite> favorites = new ArrayList<>();
 
     public static FavoriteFolder create(
-        User user,
+        Device device,
         String name
     ) {
         return FavoriteFolder.builder()
-                .user(user)
+                .device(device)
                 .name(name)
                 .build();
     }

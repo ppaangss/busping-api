@@ -1,16 +1,15 @@
 package com.busping.favorite.controller;
 
+import com.busping.device.domain.Device;
 import com.busping.favorite.dto.FolderCreateRequest;
 import com.busping.favorite.dto.FolderResponse;
 import com.busping.favorite.dto.FolderUpdateRequest;
 import com.busping.favorite.service.FavoriteFolderService;
 import com.busping.global.common.SuccessResponse;
-import com.busping.global.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,11 +27,9 @@ public class FavoriteFolderController {
     @PostMapping
     public ResponseEntity<SuccessResponse<FolderResponse>> createFolder(
             @Valid @RequestBody FolderCreateRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
-        Long userId = userDetails.getId();
-
-        FolderResponse response = folderService.createFolder(userId, request);
+        FolderResponse response = folderService.createFolder(device, request);
 
         return SuccessResponse.of(
                 HttpStatus.CREATED,
@@ -46,11 +43,9 @@ public class FavoriteFolderController {
      */
     @GetMapping
     public ResponseEntity<SuccessResponse<List<FolderResponse>>> getFolders(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
-        Long userId = userDetails.getId();
-
-        List<FolderResponse> response = folderService.getFolders(userId);
+        List<FolderResponse> response = folderService.getFolders(device.getId());
 
         return SuccessResponse.of(
                 HttpStatus.OK,
@@ -66,11 +61,9 @@ public class FavoriteFolderController {
     public ResponseEntity<SuccessResponse<Void>> updateFolder(
             @PathVariable Long folderId,
             @Valid @RequestBody FolderUpdateRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
-        Long userId = userDetails.getId();
-
-        folderService.updateFolder(userId, folderId, request);
+        folderService.updateFolder(device.getId(), folderId, request);
 
         return SuccessResponse.of(
                 HttpStatus.OK,
@@ -84,18 +77,13 @@ public class FavoriteFolderController {
     @DeleteMapping("/{folderId}")
     public ResponseEntity<SuccessResponse<Void>> deleteFolder(
             @PathVariable Long folderId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
-        Long userId = userDetails.getId();
-
-        folderService.deleteFolder(userId, folderId);
+        folderService.deleteFolder(device.getId(), folderId);
 
         return SuccessResponse.of(
                 HttpStatus.OK,
                 "폴더 삭제 완료"
         );
     }
-
-
-
 }

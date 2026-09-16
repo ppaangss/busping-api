@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -32,9 +33,9 @@ public class FavoriteArrivalService {
     private final FavoriteFolderRepository favoriteFolderRepository;
     private final ArrivalService arrivalService;
 
-    public FolderArrivalResponse getArrivalsByFolder(Long userId, Long folderId) {
+    public FolderArrivalResponse getArrivalsByFolder(UUID deviceId, Long folderId) {
         FavoriteFolder folder = favoriteFolderRepository
-                .findByIdAndUser_Id(folderId, userId)
+                .findByIdAndDevice_Id(folderId, deviceId)
                 .orElseThrow(() -> new BusinessException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         List<Favorite> favorites = favoriteRepository.findAllByFolder_Id(folder.getId());
@@ -52,9 +53,9 @@ public class FavoriteArrivalService {
     /**
      * 요청 좌표 기준 500m 이내 즐겨찾기만 도착정보 조회 - 위치는 저장하지 않고 요청에서 받는다
      */
-    public FolderArrivalResponse getNearbyArrivalsByFolder(Long userId, Long folderId, double latitude, double longitude) {
+    public FolderArrivalResponse getNearbyArrivalsByFolder(UUID deviceId, Long folderId, double latitude, double longitude) {
         FavoriteFolder folder = favoriteFolderRepository
-                .findByIdAndUser_Id(folderId, userId)
+                .findByIdAndDevice_Id(folderId, deviceId)
                 .orElseThrow(() -> new BusinessException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         List<Favorite> favorites = favoriteRepository.findAllByFolder_Id(folder.getId());

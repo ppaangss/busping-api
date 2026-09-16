@@ -41,14 +41,9 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // 3. 요청에 대한 권한 설정
+                // 3. 인증은 DeviceAuthInterceptor(X-Device-Id)가 담당 - Security는 다음 커밋에서 철거 예정이라 전부 개방
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/signup").permitAll()
-                        .requestMatchers("/api/login").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/devices").permitAll() // 디바이스 등록은 무인증 (Security 철거 시 함께 삭제)
-                        .requestMatchers("/test/**").permitAll()
-                        .anyRequest().authenticated()                     // 나머지는 인증이 필요함
+                        .anyRequest().permitAll()
                 )
 
                 // 4. JWT 필터를 필터 체인에 등록
