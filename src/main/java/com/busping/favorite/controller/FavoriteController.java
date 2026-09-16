@@ -1,15 +1,14 @@
 package com.busping.favorite.controller;
 
+import com.busping.device.domain.Device;
 import com.busping.favorite.dto.FavoriteCreateRequest;
 import com.busping.favorite.dto.FavoriteResponse;
 import com.busping.favorite.service.FavoriteService;
 import com.busping.global.common.SuccessResponse;
-import com.busping.global.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,10 +27,10 @@ public class FavoriteController {
     public ResponseEntity<SuccessResponse<Void>> addRoute(
             @PathVariable Long folderId,
             @Valid @RequestBody FavoriteCreateRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
         favoriteService.createFavorite(
-                userDetails.getId(),
+                device.getId(),
                 folderId,
                 request
         );
@@ -48,11 +47,11 @@ public class FavoriteController {
     @GetMapping("/{folderId}/routes")
     public ResponseEntity<SuccessResponse<List<FavoriteResponse>>> getRoutes(
             @PathVariable Long folderId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
         List<FavoriteResponse> response =
                 favoriteService.getListFavorites(
-                        userDetails.getId(),
+                        device.getId(),
                         folderId
                 );
 
@@ -65,19 +64,15 @@ public class FavoriteController {
 
     /**
      * 즐겨찾기 노선 삭제
-     * @param folderId
-     * @param favoriteId
-     * @param userDetails
-     * @return
      */
     @DeleteMapping("/{folderId}/routes/{favoriteId}")
     public ResponseEntity<SuccessResponse<Void>> deleteFavorite(
             @PathVariable Long folderId,
             @PathVariable Long favoriteId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
         favoriteService.deleteFavorite(
-                userDetails.getId(),
+                device.getId(),
                 folderId,
                 favoriteId
         );

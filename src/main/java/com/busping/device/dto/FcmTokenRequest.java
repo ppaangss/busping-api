@@ -1,4 +1,4 @@
-package com.busping.user.dto.fcm;
+package com.busping.device.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

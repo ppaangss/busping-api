@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,12 +24,12 @@ public class FavoriteService {
 
     /**
      *
-     * @param userId 사용자 ID (JWT에서 추출)
+     * @param deviceId 디바이스 ID (X-Device-Id 인증)
      * @param folderId 폴더 ID
      * @param request 즐겨찾기(노선) 추가 요청 DTO
      */
     @Transactional
-    public void createFavorite(Long userId, Long folderId, FavoriteCreateRequest request) {
+    public void createFavorite(UUID deviceId, Long folderId, FavoriteCreateRequest request) {
 
         // 1. request 검증
         if (request == null) {
@@ -36,10 +37,10 @@ public class FavoriteService {
         }
 
         // 2. 폴더 소유권 검증
-        // folderId와 userId 모두 만족해야 리소스를 반환함.
+        // folderId와 deviceId 모두 만족해야 리소스를 반환함.
         // 만약 하나라도 일치하지 않을 경우 Optional.empty() 반환
         FavoriteFolder folder = favoriteFolderRepository
-                .findByIdAndUser_Id(folderId, userId)
+                .findByIdAndDevice_Id(folderId, deviceId)
                 .orElseThrow(() -> new BusinessException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         // 3. 중복 체크 (같은 폴더 안에서 동일 정류장 + 노선)
@@ -69,16 +70,16 @@ public class FavoriteService {
 
     /**
      * 노선 목록 조회
-     * @param userId 사용자 Id
+     * @param deviceId 디바이스 Id
      * @param folderId 폴더 Id
      * @return 즐겨찾기 노선 리스트 반환
      */
     @Transactional(readOnly = true)
-    public List<FavoriteResponse> getListFavorites(Long userId, Long folderId) {
+    public List<FavoriteResponse> getListFavorites(UUID deviceId, Long folderId) {
 
         // 1. 폴더 소유권 검증
         FavoriteFolder folder = favoriteFolderRepository
-                .findByIdAndUser_Id(folderId, userId)
+                .findByIdAndDevice_Id(folderId, deviceId)
                 .orElseThrow(() ->
                         new BusinessException(CommonErrorCode.RESOURCE_NOT_FOUND)
                 );
@@ -95,16 +96,16 @@ public class FavoriteService {
 
     /**
      * 노선 삭제
-     * @param userId     사용자 ID
+     * @param deviceId   디바이스 ID
      * @param folderId   폴더 ID
      * @param favoriteId 삭제할 노선 ID
      */
     @Transactional
-    public void deleteFavorite(Long userId, Long folderId, Long favoriteId) {
+    public void deleteFavorite(UUID deviceId, Long folderId, Long favoriteId) {
 
         // 폴더 소유권 검증
         FavoriteFolder folder = favoriteFolderRepository
-                .findByIdAndUser_Id(folderId, userId)
+                .findByIdAndDevice_Id(folderId, deviceId)
                 .orElseThrow(() ->
                         new BusinessException(CommonErrorCode.RESOURCE_NOT_FOUND)
                 );

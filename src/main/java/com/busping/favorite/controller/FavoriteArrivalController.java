@@ -1,13 +1,12 @@
 package com.busping.favorite.controller;
 
+import com.busping.device.domain.Device;
 import com.busping.favorite.dto.FolderArrivalResponse;
 import com.busping.favorite.service.FavoriteArrivalService;
 import com.busping.global.common.SuccessResponse;
-import com.busping.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,11 +28,11 @@ public class FavoriteArrivalController {
     @GetMapping("/{folderId}/realtime")
     public ResponseEntity<SuccessResponse<FolderArrivalResponse>> getFolderRealtime(
             @PathVariable Long folderId,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
         FolderArrivalResponse response =
                 favoriteArrivalService.getArrivalsByFolder(
-                        userDetails.getId(),
+                        device.getId(),
                         folderId
                 );
 
@@ -44,7 +43,6 @@ public class FavoriteArrivalController {
         );
     }
 
-    
     /**
      * 폴더 내 즐겨찾기 도착정보 조회 (요청 좌표 기준 500m 이내만)
      * - 위치는 저장하지 않으므로 쿼리 파라미터로 현재 좌표를 받는다.
@@ -56,11 +54,11 @@ public class FavoriteArrivalController {
             @PathVariable Long folderId,
             @RequestParam double latitude,
             @RequestParam double longitude,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            Device device
     ) {
         FolderArrivalResponse response =
                 favoriteArrivalService.getNearbyArrivalsByFolder(
-                        userDetails.getId(),
+                        device.getId(),
                         folderId,
                         latitude,
                         longitude
