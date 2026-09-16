@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -45,20 +46,24 @@ public class FavoriteArrivalController {
 
     
     /**
-     * 폴더 내 즐겨찾기 도착정보 조회 (유저 위치 기준 500m 이내만)
-     * - 유저의 현재 위치에서 500m 이내인 즐겨찾기만 필터링하여 도착정보를 반환한다.
+     * 폴더 내 즐겨찾기 도착정보 조회 (요청 좌표 기준 500m 이내만)
+     * - 위치는 저장하지 않으므로 쿼리 파라미터로 현재 좌표를 받는다.
      * - ArrivalService를 경유해 TAGO 도착정보를 조회한다.
-     * - 유저 위치(위경도)가 설정되지 않은 경우 400 에러를 반환한다.
+     * - 좌표 파라미터가 없으면 400 에러를 반환한다.
      */
     @GetMapping("/{folderId}/nearby")
     public ResponseEntity<SuccessResponse<FolderArrivalResponse>> getNearbyFolderRealtime(
             @PathVariable Long folderId,
+            @RequestParam double latitude,
+            @RequestParam double longitude,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         FolderArrivalResponse response =
                 favoriteArrivalService.getNearbyArrivalsByFolder(
                         userDetails.getId(),
-                        folderId
+                        folderId,
+                        latitude,
+                        longitude
                 );
 
         return SuccessResponse.of(
