@@ -28,8 +28,7 @@ tago:
     base-url: ${TAGO_ARRIVAL_BASE_URL:http://apis.data.go.kr/1613000/ArvlInfoInqireService}
 
 alarm:
-  batch:
-    cooldown-seconds: 60 # Redis TTL 주기
+  cooldown-seconds: 600 # 재알림 쿨다운 TTL - 체류 중 10분마다 재알림
 
 firebase:
   credentials-path: ${FIREBASE_CREDENTIALS_PATH:serviceAccountKey.json}
