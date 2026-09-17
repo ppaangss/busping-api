@@ -3,6 +3,8 @@ package com.busping.favorite.domain;
 import com.busping.device.domain.Device;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +21,10 @@ public class FavoriteFolder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // 디바이스 삭제 시 폴더도 DB 레벨에서 함께 삭제 (ON DELETE CASCADE)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "device_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Device device;
 
     @Column(nullable = false)

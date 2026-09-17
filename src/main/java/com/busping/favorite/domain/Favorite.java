@@ -2,6 +2,8 @@ package com.busping.favorite.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(
@@ -46,9 +48,10 @@ public class Favorite {
     @Column(name = "route_name", nullable = false)
     private String routeName;
 
-    // 폴더 정보 (연관관계의 주인)
+    // 폴더 정보 (연관관계의 주인) - 폴더 삭제 시 DB 레벨에서 함께 삭제
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "folder_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private FavoriteFolder folder;
 
     public static Favorite create(
