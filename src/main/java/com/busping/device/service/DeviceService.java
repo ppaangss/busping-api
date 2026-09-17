@@ -35,4 +35,14 @@ public class DeviceService {
 
         device.updateFcmToken(fcmToken);
     }
+
+    /**
+     * 알람 on/off 변경 - off면 위치 이벤트가 와도 평가하지 않는다
+     */
+    public void updateAlarmEnabled(UUID deviceId, boolean alarmEnabled) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new BusinessException(DeviceErrorCode.UNREGISTERED_DEVICE));
+
+        device.updateAlarmEnabled(alarmEnabled);
+    }
 }

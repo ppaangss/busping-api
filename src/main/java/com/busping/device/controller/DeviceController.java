@@ -1,6 +1,7 @@
 package com.busping.device.controller;
 
 import com.busping.device.domain.Device;
+import com.busping.device.dto.AlarmEnabledRequest;
 import com.busping.device.dto.DeviceRegisterResponse;
 import com.busping.device.dto.FcmTokenRequest;
 import com.busping.device.service.DeviceService;
@@ -43,6 +44,20 @@ public class DeviceController {
         return SuccessResponse.of(
                 HttpStatus.OK,
                 "FCM 토큰이 등록되었습니다."
+        );
+    }
+
+    /** 알람 수신 on/off */
+    @PatchMapping("/me/alarm")
+    public ResponseEntity<SuccessResponse<Void>> updateAlarmEnabled(
+            Device device,
+            @Valid @RequestBody AlarmEnabledRequest request
+    ) {
+        deviceService.updateAlarmEnabled(device.getId(), request.alarmEnabled());
+
+        return SuccessResponse.of(
+                HttpStatus.OK,
+                "알람 설정이 변경되었습니다."
         );
     }
 }
