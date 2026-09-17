@@ -45,4 +45,14 @@ public class DeviceService {
 
         device.updateAlarmEnabled(alarmEnabled);
     }
+
+    /**
+     * 디바이스 삭제 - 폴더·즐겨찾기는 DB의 ON DELETE CASCADE로 함께 삭제된다
+     */
+    public void deleteDevice(UUID deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new BusinessException(DeviceErrorCode.UNREGISTERED_DEVICE));
+
+        deviceRepository.delete(device);
+    }
 }

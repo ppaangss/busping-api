@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +59,17 @@ public class DeviceController {
         return SuccessResponse.of(
                 HttpStatus.OK,
                 "알람 설정이 변경되었습니다."
+        );
+    }
+
+    /** 디바이스 삭제 - 폴더·즐겨찾기 함께 삭제, 이후 이 UUID는 401 */
+    @DeleteMapping("/me")
+    public ResponseEntity<SuccessResponse<Void>> deleteDevice(Device device) {
+        deviceService.deleteDevice(device.getId());
+
+        return SuccessResponse.of(
+                HttpStatus.OK,
+                "디바이스가 삭제되었습니다."
         );
     }
 }
