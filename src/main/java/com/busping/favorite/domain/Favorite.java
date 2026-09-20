@@ -35,10 +35,11 @@ public class Favorite {
     @Column(name = "city_code", nullable = false)
     private String cityCode;
 
-    @Column(name = "latitude")
+    // 알람 평가의 거리 계산에 쓰이므로 필수
+    @Column(name = "latitude", nullable = false)
     private Double latitude;
 
-    @Column(name = "longitude")
+    @Column(name = "longitude", nullable = false)
     private Double longitude;
 
     // 노선 정보
