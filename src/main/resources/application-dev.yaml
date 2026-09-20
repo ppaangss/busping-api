@@ -4,3 +4,6 @@ tago:
   api:
     key: fake-key-not-used  # fake 클라이언트라 실제로 쓰이지 않는다
   fake-latency-ms: 0
+
+alarm:
+  cooldown-seconds: 30  # dev에선 30초마다 재알림 (운영 600초)
