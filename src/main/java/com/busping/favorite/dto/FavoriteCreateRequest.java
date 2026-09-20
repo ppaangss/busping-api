@@ -24,10 +24,12 @@ public class FavoriteCreateRequest {
     @Size(max = 20, message = "지역 코드는 20자 이하여야 합니다.")
     private String regionCode;
 
+    @NotNull(message = "위도는 필수입니다.")
     @DecimalMin(value = "-90.0", message = "위도 범위가 올바르지 않습니다.")
     @DecimalMax(value = "90.0", message = "위도 범위가 올바르지 않습니다.")
     private Double latitude;
 
+    @NotNull(message = "경도는 필수입니다.")
     @DecimalMin(value = "-180.0", message = "경도 범위가 올바르지 않습니다.")
     @DecimalMax(value = "180.0", message = "경도 범위가 올바르지 않습니다.")
     private Double longitude;

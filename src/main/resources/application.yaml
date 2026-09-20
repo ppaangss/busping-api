@@ -18,7 +18,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate  # 스키마는 Flyway(db/migration)가 관리, 하이버네이트는 검증만
     show-sql: false
 
 tago:
