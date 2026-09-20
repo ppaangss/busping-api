@@ -1,5 +1,6 @@
 package com.busping.alarm;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,6 +21,14 @@ public class AlarmCooldownManager {
 
     @Value("${alarm.cooldown-seconds}")
     private long cooldownSeconds;
+
+    /** 프리플라이트 - 쿨다운이 0 이하면 재알림 무한 발송이므로 부팅을 막는다 */
+    @PostConstruct
+    void validate() {
+        if (cooldownSeconds <= 0) {
+            throw new IllegalStateException("alarm.cooldown-seconds는 양수여야 함: " + cooldownSeconds);
+        }
+    }
 
     /** 쿨다운 획득 시도 - true면 발송 가능, false면 TTL 안이라 스킵 (NX + TTL 원자 연산) */
     public boolean tryAcquireCooldown(
