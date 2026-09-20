@@ -1,0 +1,6 @@
+# 로컬 개발 - TAGO는 FakeTagoArrivalClient(가짜 도착 데이터)로 대체, 실 API 호출 없음
+# 알람 플로우 테스트: 즐겨찾기 routeId를 FAKE-ROUTE로 등록하면 가짜 도착정보와 매칭된다
+tago:
+  api:
+    key: fake-key-not-used  # fake 클라이언트라 실제로 쓰이지 않는다
+  fake-latency-ms: 0

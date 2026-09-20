@@ -10,8 +10,9 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class FcmService {
+public class FcmService implements FcmPort {
 
+    @Override
     public void send(String fcmToken, String title, String body) {
         // Firebase 미초기화(자격증명 없는 로컬 환경)면 발송하지 않는다
         if (FirebaseApp.getApps().isEmpty()) {
