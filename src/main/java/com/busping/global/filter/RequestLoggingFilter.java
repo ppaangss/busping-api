@@ -29,20 +29,6 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
                     request.getMethod(),
                     request.getRequestURI(),
                     elapsed);
-
-//            if (elapsed > 500) {
-//                log.warn("[SLOW API] [{}] {} {} - {}ms",
-//                        response.getStatus(),
-//                        request.getMethod(),
-//                        request.getRequestURI(),
-//                        elapsed);
-//            } else {
-//                log.debug("[{}] {} {} - {}ms",
-//                        response.getStatus(),
-//                        request.getMethod(),
-//                        request.getRequestURI(),
-//                        elapsed);
-//            }
         }
     }
 }
