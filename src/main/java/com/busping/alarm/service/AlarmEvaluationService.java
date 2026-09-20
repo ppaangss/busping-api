@@ -7,7 +7,7 @@ import com.busping.arrival.service.ArrivalService;
 import com.busping.device.domain.Device;
 import com.busping.favorite.domain.Favorite;
 import com.busping.favorite.domain.FavoriteRepository;
-import com.busping.global.external.fcm.FcmService;
+import com.busping.global.external.fcm.FcmPort;
 import com.busping.global.util.DistanceUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class AlarmEvaluationService {
     private final FavoriteRepository favoriteRepository;
     private final ArrivalService arrivalService;
     private final AlarmCooldownManager cooldownManager;
-    private final FcmService fcmService;
+    private final FcmPort fcmService;
 
     @Transactional
     public void evaluate(Device device, double latitude, double longitude) {

@@ -1,0 +1,4 @@
+# 실 TAGO API 검증용 - TAGO_API_KEY 환경변수 필수, 인프라는 로컬 도커
+tago:
+  api:
+    key: ${TAGO_API_KEY}
