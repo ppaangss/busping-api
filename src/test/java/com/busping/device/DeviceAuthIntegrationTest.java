@@ -3,12 +3,9 @@ package com.busping.device;
 import com.busping.favorite.domain.FavoriteFolderRepository;
 import com.busping.favorite.domain.FavoriteRepository;
 import com.busping.support.IntegrationTestSupport;
-import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
@@ -19,10 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class DeviceAuthIntegrationTest extends IntegrationTestSupport {
 
-    private static final String HEADER = "X-Device-Id";
-
-    @Autowired
-    MockMvc mockMvc;
     @Autowired
     FavoriteFolderRepository favoriteFolderRepository;
     @Autowired
@@ -39,14 +32,14 @@ class DeviceAuthIntegrationTest extends IntegrationTestSupport {
     @Test
     @DisplayName("UUID 형식이 아닌 헤더는 401이다")
     void malformedUuidIsUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/favorites/folders").header(HEADER, "not-a-uuid"))
+        mockMvc.perform(get("/api/favorites/folders").header(DEVICE_HEADER, "not-a-uuid"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @DisplayName("형식은 맞지만 등록되지 않은 UUID는 401이다")
     void unregisteredUuidIsUnauthorized() throws Exception {
-        mockMvc.perform(get("/api/favorites/folders").header(HEADER, UUID.randomUUID().toString()))
+        mockMvc.perform(get("/api/favorites/folders").header(DEVICE_HEADER, UUID.randomUUID().toString()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -55,7 +48,7 @@ class DeviceAuthIntegrationTest extends IntegrationTestSupport {
     void registeredDeviceIsAuthorized() throws Exception {
         String deviceId = registerDevice();
 
-        mockMvc.perform(get("/api/favorites/folders").header(HEADER, deviceId))
+        mockMvc.perform(get("/api/favorites/folders").header(DEVICE_HEADER, deviceId))
                 .andExpect(status().isOk());
     }
 
@@ -64,50 +57,19 @@ class DeviceAuthIntegrationTest extends IntegrationTestSupport {
     void deleteCascadesAndInvalidatesDevice() throws Exception {
         // given - 디바이스에 폴더 1개, 노선 1개
         String deviceId = registerDevice();
-        String folderId = createFolder(deviceId);
-        addRoute(deviceId, folderId);
+        String folderId = createFolder(deviceId, "출근길");
+        addRoute(deviceId, folderId, "ST1", "FAKE-ROUTE", 37.5665, 126.9780);
         assertThat(favoriteFolderRepository.findAllByDevice_IdOrderByIdAsc(UUID.fromString(deviceId))).hasSize(1);
         assertThat(favoriteRepository.findAllByFolder_Device_Id(UUID.fromString(deviceId))).hasSize(1);
 
         // when - 디바이스 삭제
-        mockMvc.perform(delete("/api/devices/me").header(HEADER, deviceId))
+        mockMvc.perform(delete("/api/devices/me").header(DEVICE_HEADER, deviceId))
                 .andExpect(status().isOk());
 
         // then - DB 레벨 cascade로 전부 삭제 + 재접근 401
         assertThat(favoriteFolderRepository.findAllByDevice_IdOrderByIdAsc(UUID.fromString(deviceId))).isEmpty();
         assertThat(favoriteRepository.findAllByFolder_Device_Id(UUID.fromString(deviceId))).isEmpty();
-        mockMvc.perform(get("/api/favorites/folders").header(HEADER, deviceId))
+        mockMvc.perform(get("/api/favorites/folders").header(DEVICE_HEADER, deviceId))
                 .andExpect(status().isUnauthorized());
-    }
-
-    // ===== API 헬퍼 =====
-
-    private String registerDevice() throws Exception {
-        String body = mockMvc.perform(post("/api/devices"))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        return JsonPath.read(body, "$.data.deviceId");
-    }
-
-    private String createFolder(String deviceId) throws Exception {
-        String body = mockMvc.perform(post("/api/favorites/folders")
-                        .header(HEADER, deviceId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"출근길\"}"))
-                .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
-        return String.valueOf((int) JsonPath.read(body, "$.data.id"));
-    }
-
-    private void addRoute(String deviceId, String folderId) throws Exception {
-        mockMvc.perform(post("/api/favorites/" + folderId + "/routes")
-                        .header(HEADER, deviceId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"stationId":"ST1","stationName":"시청앞","regionCode":"23",
-                                 "latitude":37.5665,"longitude":126.9780,
-                                 "routeId":"FAKE-ROUTE","routeName":"77"}
-                                """))
-                .andExpect(status().isCreated());
     }
 }
