@@ -5,10 +5,8 @@ import com.busping.arrival.dto.ArrivalItem;
 import com.busping.arrival.dto.RouteArrivalResponse;
 import com.busping.arrival.dto.StationArrivalResponse;
 import com.busping.global.external.tago.arrival.TagoArrivalPort;
-import com.busping.global.external.tago.arrival.TagoArrivalWebClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,7 +19,6 @@ import java.util.stream.Collectors;
 public class ArrivalService {
 
     private final TagoArrivalPort tagoArrivalClient;
-    private final TagoArrivalWebClient tagoArrivalWebClient;
 
     public StationArrivalResponse getGroupedArrivalsResponse(String cityCode, String stationId) {
         Map<String, List<Arrival>> grouped = getGroupedArrivals(cityCode, stationId);
@@ -44,11 +41,6 @@ public class ArrivalService {
                 .toList();
 
         return new StationArrivalResponse(routes);
-    }
-
-    public Mono<Map<String, List<Arrival>>> getGroupedArrivalsMono(String cityCode, String stationId) {
-        return tagoArrivalWebClient.fetchRealtimeArrivals(cityCode, stationId)
-                .map(this::groupByRoute);
     }
 
     public Map<String, List<Arrival>> getGroupedArrivals(String cityCode, String stationId) {
