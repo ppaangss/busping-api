@@ -1,0 +1,6 @@
+# Terraform 로컬 상태·캐시 (.terraform.lock.hcl은 커밋 대상이라 제외 안 함)
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+*.pem
