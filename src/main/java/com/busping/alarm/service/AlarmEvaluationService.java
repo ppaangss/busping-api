@@ -12,7 +12,6 @@ import com.busping.global.util.DistanceUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +35,7 @@ public class AlarmEvaluationService {
     private final AlarmCooldownManager cooldownManager;
     private final FcmPort fcmService;
 
-    @Transactional
+    // 외부 호출(TAGO·FCM)이 낀 플로우 - 트랜잭션으로 묶지 않아 커넥션 점유를 쿼리 순간으로 제한
     public void evaluate(Device device, double latitude, double longitude) {
 
         // 1. 알람 꺼진 디바이스는 평가하지 않는다

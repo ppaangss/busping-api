@@ -13,7 +13,6 @@ import com.busping.global.exception.errorcode.CommonErrorCode;
 import com.busping.global.util.DistanceUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,9 +21,9 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// 외부 호출(TAGO)이 낀 조회 서비스 - 트랜잭션으로 묶지 않아 커넥션 점유를 쿼리 순간으로 제한
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class FavoriteArrivalService {
 
     private static final int RADIUS_METERS = 500;

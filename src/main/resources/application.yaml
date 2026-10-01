@@ -20,6 +20,7 @@ spring:
     hibernate:
       ddl-auto: validate  # 스키마는 Flyway(db/migration)가 관리, 하이버네이트는 검증만
     show-sql: false
+    open-in-view: false  # 영속성 컨텍스트를 요청 전체로 늘리지 않는다 - 트랜잭션 밖 커넥션 점유 차단
 
 tago:
   api:
