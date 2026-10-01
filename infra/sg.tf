@@ -51,6 +51,14 @@ resource "aws_security_group" "loadgen" {
   tags = { Name = "${var.name_prefix}-loadgen-sg" }
 }
 
+resource "aws_security_group" "mock" {
+  name        = "${var.name_prefix}-mock-sg"
+  description = "mock external api - 8081 from app, ssh from admin ip"
+  vpc_id      = aws_vpc.main.id
+
+  tags = { Name = "${var.name_prefix}-mock-sg" }
+}
+
 # ---- 인그레스 규칙 ----
 
 # ALB 80 <- 내 IP (부하발생기 -> ALB 규칙은 인스턴스 생성 후 공인 IP를 알아야 해서 compute 쪽에서 추가)
@@ -125,6 +133,24 @@ resource "aws_vpc_security_group_ingress_rule" "loadgen_ssh_admin" {
   ip_protocol       = "tcp"
 }
 
+# mock TAGO 8081 <- 앱만
+resource "aws_vpc_security_group_ingress_rule" "mock_from_app" {
+  security_group_id            = aws_security_group.mock.id
+  referenced_security_group_id = aws_security_group.app.id
+  from_port                    = 8081
+  to_port                      = 8081
+  ip_protocol                  = "tcp"
+}
+
+# mock SSH <- 내 IP (매핑 배포·디버깅)
+resource "aws_vpc_security_group_ingress_rule" "mock_ssh_admin" {
+  security_group_id = aws_security_group.mock.id
+  cidr_ipv4         = local.my_ip_cidr
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+}
+
 # ---- 이그레스: 전부 전체 허용 (패키지 설치, TAGO/FCM 아웃바운드 등) ----
 
 resource "aws_vpc_security_group_egress_rule" "all" {
@@ -134,6 +160,7 @@ resource "aws_vpc_security_group_egress_rule" "all" {
     redis   = aws_security_group.redis.id
     rds     = aws_security_group.rds.id
     loadgen = aws_security_group.loadgen.id
+    mock    = aws_security_group.mock.id
   }
 
   security_group_id = each.value

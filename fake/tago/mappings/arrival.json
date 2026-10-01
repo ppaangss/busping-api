@@ -1,0 +1,130 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": ".*/getSttnAcctoArvlPrearngeInfoList"
+  },
+  "response": {
+    "transformers": ["tago-world"],
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "response": {
+        "header": {
+          "resultCode": "00",
+          "resultMsg": "NORMAL SERVICE."
+        },
+        "body": {
+          "items": {
+            "item": [
+              {
+                "arrprevstationcnt": 9,
+                "arrtime": 873,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000048",
+                "routeno": 250,
+                "routetp": "일반버스",
+                "vehicletp": "저상버스"
+              },
+              {
+                "arrprevstationcnt": 1,
+                "arrtime": 180,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000048",
+                "routeno": 250,
+                "routetp": "일반버스",
+                "vehicletp": "일반차량"
+              },
+              {
+                "arrprevstationcnt": 14,
+                "arrtime": 1662,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000060",
+                "routeno": 103,
+                "routetp": "일반버스",
+                "vehicletp": "저상버스"
+              },
+              {
+                "arrprevstationcnt": 35,
+                "arrtime": 3584,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000060",
+                "routeno": 103,
+                "routetp": "일반버스",
+                "vehicletp": "저상버스"
+              },
+              {
+                "arrprevstationcnt": 21,
+                "arrtime": 1882,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000076",
+                "routeno": 382,
+                "routetp": "일반버스",
+                "vehicletp": "저상버스"
+              },
+              {
+                "arrprevstationcnt": 3,
+                "arrtime": 255,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000076",
+                "routeno": 382,
+                "routetp": "일반버스",
+                "vehicletp": "저상버스"
+              },
+              {
+                "arrprevstationcnt": 14,
+                "arrtime": 1327,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000079",
+                "routeno": 380,
+                "routetp": "일반버스",
+                "vehicletp": "일반차량"
+              },
+              {
+                "arrprevstationcnt": 18,
+                "arrtime": 1698,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000079",
+                "routeno": 380,
+                "routetp": "일반버스",
+                "vehicletp": "저상버스"
+              },
+              {
+                "arrprevstationcnt": 2,
+                "arrtime": 193,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000145",
+                "routeno": "누리1",
+                "routetp": "일반버스",
+                "vehicletp": "일반차량"
+              },
+              {
+                "arrprevstationcnt": 6,
+                "arrtime": 595,
+                "nodeid": "GGB206000108",
+                "nodenm": "야탑역.종합버스터미널(전면)",
+                "routeid": "GGB204000145",
+                "routeno": "누리1",
+                "routetp": "일반버스",
+                "vehicletp": "일반차량"
+              }
+            ]
+          },
+          "numOfRows": 10,
+          "pageNo": 1,
+          "totalCount": 12
+        }
+      }
+    }
+  }
+}

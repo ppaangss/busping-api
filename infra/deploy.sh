@@ -11,6 +11,8 @@ RDS_HOST=$(terraform output -raw rds_endpoint)
 DB_PW=$(terraform output -raw db_password)
 PEM=$(terraform output -raw ssh_key_path)
 ALB_DNS=$(terraform output -raw alb_dns_name)
+MOCK_PRIV=$(terraform output -raw mock_private_ip)
+MOCK_PUB=$(terraform output -raw mock_public_ip)
 
 echo ">>> jar 빌드"
 (cd .. && ./gradlew bootJar -q)
@@ -19,6 +21,31 @@ echo "    $JAR"
 
 SSH_OPTS=(-i "$PEM" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -o LogLevel=ERROR)
 
+# ---- mock TAGO: extension 빌드 + 매핑·jar 배포 + 재시작 ----
+# 부팅 시엔 jar가 없어 서비스가 enable만 된 상태 - 여기서 처음 뜬다
+echo ">>> mock TAGO extension 빌드"
+(cd ../fake/extension && ./build.sh)
+
+echo ">>> mock TAGO 매핑·extension 배포: $MOCK_PUB"
+scp "${SSH_OPTS[@]}" ../fake/tago/mappings/*.json "ec2-user@$MOCK_PUB:/home/ec2-user/mock/mappings/"
+scp "${SSH_OPTS[@]}" ../fake/extension/tago-world.jar "ec2-user@$MOCK_PUB:/home/ec2-user/mock/"
+ssh "${SSH_OPTS[@]}" "ec2-user@$MOCK_PUB" "sudo systemctl restart mock-tago"
+
+mock_ok=""
+for i in $(seq 1 20); do
+  if ssh "${SSH_OPTS[@]}" "ec2-user@$MOCK_PUB" \
+    'curl -sf "http://localhost:8081/getSttnAcctoArvlPrearngeInfoList?_type=json"' >/dev/null 2>&1; then
+    echo "    mock TAGO OK"
+    mock_ok=1
+    break
+  fi
+  sleep 3
+done
+if [ -z "$mock_ok" ]; then
+  echo "    mock TAGO 응답 없음 - 로그: ssh -i $PEM ec2-user@$MOCK_PUB 'journalctl -u mock-tago -n 50'"
+  exit 1
+fi
+
 for IP in $APP_IPS; do
   echo ">>> 배포: $IP"
 
@@ -26,11 +53,12 @@ for IP in $APP_IPS; do
 
   # 환경변수 파일 (DB 비밀번호 포함 - 600)
   ssh "${SSH_OPTS[@]}" "ec2-user@$IP" "sudo tee /etc/app.env > /dev/null && sudo chmod 600 /etc/app.env" <<ENV
-SPRING_PROFILES_ACTIVE=dev
+SPRING_PROFILES_ACTIVE=loadtest
 DB_URL=jdbc:mysql://$RDS_HOST:3306/ppaangss_test?serverTimezone=Asia/Seoul
 DB_USERNAME=ppaangss
 DB_PASSWORD=$DB_PW
 REDIS_HOST=$REDIS_IP
+TAGO_ARRIVAL_BASE_URL=http://$MOCK_PRIV:8081
 ENV
 
   ssh "${SSH_OPTS[@]}" "ec2-user@$IP" "sudo tee /etc/systemd/system/app.service > /dev/null" <<'UNIT'

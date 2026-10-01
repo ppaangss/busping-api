@@ -26,6 +26,16 @@ output "loadgen_public_ip" {
   value = aws_instance.loadgen.public_ip
 }
 
+output "mock_private_ip" {
+  description = "앱 설정 TAGO_ARRIVAL_BASE_URL에 넣을 주소 (http://<ip>:8081)"
+  value       = aws_instance.mock.private_ip
+}
+
+output "mock_public_ip" {
+  description = "매핑 배포·SSH용"
+  value       = aws_instance.mock.public_ip
+}
+
 output "rds_endpoint" {
   description = "앱 설정 DB_URL에 넣을 값"
   value       = aws_db_instance.main.address

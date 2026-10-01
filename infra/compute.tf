@@ -94,6 +94,46 @@ resource "aws_instance" "loadgen" {
   tags = { Name = "${var.name_prefix}-loadgen" }
 }
 
+# ---- mock 외부 API 1대 - WireMock 단일 프로세스 (mock TAGO :8081, 저널 off) ----
+# 매핑 파일과 extension jar(tago-world: 실측 지연·에러율 재현)는 deploy 스크립트가 scp로 전달 후 서비스 시작
+# 부팅 시엔 jar가 아직 없어 기동 불가이므로 enable만 하고 start는 deploy가 담당
+# container-threads 200: 지연 도입으로 요청당 평균 ~1.4초 스레드 점유 - 기본 10개면 fake가 병목이 된다
+
+resource "aws_instance" "mock" {
+  ami                    = data.aws_ami.al2023_arm.id
+  instance_type          = "t4g.micro"
+  subnet_id              = aws_subnet.public[0].id
+  vpc_security_group_ids = [aws_security_group.mock.id]
+  key_name               = aws_key_pair.main.key_name
+
+  user_data = <<-EOF
+    #!/bin/bash
+    dnf install -y java-17-amazon-corretto-headless
+    mkdir -p /home/ec2-user/mock/mappings
+    curl -sfL -o /home/ec2-user/mock/wiremock.jar \
+      https://repo1.maven.org/maven2/org/wiremock/wiremock-standalone/3.9.1/wiremock-standalone-3.9.1.jar
+    chown -R ec2-user:ec2-user /home/ec2-user/mock
+    cat > /etc/systemd/system/mock-tago.service <<'UNIT'
+    [Unit]
+    Description=mock tago
+    After=network.target
+
+    [Service]
+    User=ec2-user
+    ExecStart=/usr/bin/java -cp /home/ec2-user/mock/wiremock.jar:/home/ec2-user/mock/tago-world.jar wiremock.Run --port 8081 --root-dir /home/ec2-user/mock --no-request-journal --extensions com.busping.faketago.TagoWorld --container-threads 200
+    Restart=always
+    RestartSec=3
+
+    [Install]
+    WantedBy=multi-user.target
+    UNIT
+    systemctl daemon-reload
+    systemctl enable mock-tago
+  EOF
+
+  tags = { Name = "${var.name_prefix}-mock" }
+}
+
 # ALB 80 <- 부하발생기 공인 IP
 # (부하발생기는 ALB의 공인 DNS로 요청하므로 SG 참조가 아니라 공인 IP로 허용해야 한다)
 resource "aws_vpc_security_group_ingress_rule" "alb_http_loadgen" {
