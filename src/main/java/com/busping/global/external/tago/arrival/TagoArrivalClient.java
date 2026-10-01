@@ -2,16 +2,12 @@ package com.busping.global.external.tago.arrival;
 
 import com.busping.arrival.domain.Arrival;
 import com.busping.global.exception.custom.ExternalApiException;
-import com.busping.global.exception.custom.RetryableExternalApiException;
 import com.busping.global.exception.errorcode.TagoErrorCode;
 import com.busping.global.external.tago.TagoProperties;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -43,11 +39,6 @@ public class TagoArrivalClient implements TagoArrivalPort {
      * @param nodeId 정류장 정보
      * @return
      */
-    @Retryable(
-            value = RetryableExternalApiException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 1000)
-    )
     public List<Arrival> fetchRealtimeArrivals(String cityCode, String nodeId) {
 
         String url = UriComponentsBuilder
@@ -70,7 +61,7 @@ public class TagoArrivalClient implements TagoArrivalPort {
             log.info("[TAGO] #{} {}ms (cityCode={}, nodeId={})", callNumber, elapsed, cityCode, nodeId);
 
             if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RetryableExternalApiException(TagoErrorCode.SERVER_ERROR);
+                throw new ExternalApiException(TagoErrorCode.SERVER_ERROR);
             }
 
             return parser.parseArrival(response.getBody());
@@ -79,19 +70,10 @@ public class TagoArrivalClient implements TagoArrivalPort {
             throw new ExternalApiException(TagoErrorCode.BAD_REQUEST);
 
         } catch (HttpServerErrorException e) {
-            throw new RetryableExternalApiException(TagoErrorCode.SERVER_ERROR);
+            throw new ExternalApiException(TagoErrorCode.SERVER_ERROR);
 
         } catch (RestClientException e) {
-            throw new RetryableExternalApiException(TagoErrorCode.COMMUNICATION_ERROR);
+            throw new ExternalApiException(TagoErrorCode.COMMUNICATION_ERROR);
         }
-    }
-
-    @Recover
-    public TagoArrivalResponse recover(RetryableExternalApiException e,
-                                       String cityCode,
-                                       String nodeId) {
-
-        log.error("[TAGO] 재시도 후 최종 실패 cityCode={}, nodeId={}", cityCode, nodeId);
-        throw new ExternalApiException(TagoErrorCode.RETRY_EXHAUSTED);
     }
 }

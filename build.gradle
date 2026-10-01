@@ -56,10 +56,6 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:mysql'
 
-	// retry
-	implementation 'org.springframework.retry:spring-retry'
-	implementation 'org.springframework.boot:spring-boot-starter-aop'
-
 	// Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 

@@ -1,7 +1,6 @@
 package com.busping.global.external.tago.station;
 
 import com.busping.global.exception.custom.ExternalApiException;
-import com.busping.global.exception.custom.RetryableExternalApiException;
 import com.busping.global.exception.errorcode.TagoErrorCode;
 import com.busping.global.external.tago.TagoProperties;
 import com.busping.station.domain.BusStation;
@@ -11,9 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -31,11 +27,6 @@ public class TagoStationClient {
     /**
      * TAGO 근처 정류장 API를 호출해 좌표 기준 버스 정류장 목록을 조회한다.
      */
-    @Retryable(
-            value = RetryableExternalApiException.class,
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 500, multiplier = 2.0)
-    )
     public List<BusStation> fetchNearbyStations(double lat, double lng) {
         log.info("[TAGO] 근접 정류장 조회 시작");
 
@@ -63,14 +54,14 @@ public class TagoStationClient {
             }
 
             if (status.is5xxServerError()) {
-                log.warn("[TAGO] 서버 오류 status={}, retry 예정", status.value());
-                throw new RetryableExternalApiException(TagoErrorCode.SERVER_ERROR);
+                log.warn("[TAGO] 서버 오류 status={}", status.value());
+                throw new ExternalApiException(TagoErrorCode.SERVER_ERROR);
             }
 
             throw e;
         } catch (RestClientException e) {
-            log.warn("[TAGO] 통신 실패, retry 예정 lat={}, lng={}", lat, lng, e);
-            throw new RetryableExternalApiException(TagoErrorCode.COMMUNICATION_ERROR);
+            log.warn("[TAGO] 통신 실패 lat={}, lng={}", lat, lng, e);
+            throw new ExternalApiException(TagoErrorCode.COMMUNICATION_ERROR);
         }
 
         HttpStatusCode status = response.getStatusCode();
@@ -93,18 +84,5 @@ public class TagoStationClient {
 
         log.error("[TAGO] 예상하지 못한 응답 status={}", status.value());
         throw new ExternalApiException(TagoErrorCode.COMMUNICATION_ERROR);
-    }
-
-    /**
-     * 재시도 횟수를 모두 소진했을 때 최종 예외를 변환해 던진다.
-     */
-    @Recover
-    public List<BusStation> recover(
-            RetryableExternalApiException e,
-            double lat,
-            double lng
-    ) {
-        log.error("[TAGO] 최종 실패 lat={}, lng={}", lat, lng, e);
-        throw new ExternalApiException(TagoErrorCode.RETRY_EXHAUSTED);
     }
 }
