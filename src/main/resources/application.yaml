@@ -34,10 +34,24 @@ tago:
     base-url: ${TAGO_ARRIVAL_BASE_URL:http://apis.data.go.kr/1613000/ArvlInfoInqireService}
 
 alarm:
-  cooldown-seconds: 600 # 재알림 쿨다운 TTL - 체류 중 10분마다 재알림
+  cooldown-seconds: 600 # 중복 발송 방지 쿨다운 TTL - 경계 플래핑 재호출에도 진입당 알람 1회
 
 firebase:
   credentials-path: ${FIREBASE_CREDENTIALS_PATH:serviceAccountKey.json}
 
 server:
   port: 8080
+  tomcat:
+    mbeanregistry:
+      enabled: true # 톰캣 스레드풀 메트릭(tomcat_threads_*) 노출에 필요
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus # 헬스체크(ALB) + 메트릭 수집(Prometheus)
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true # Prometheus에서 p95 계산(histogram_quantile)에 필요한 버킷 노출
+        http.client.requests: true # 외부 호출(TAGO) 지연 p95용

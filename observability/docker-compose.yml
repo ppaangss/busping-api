@@ -1,0 +1,29 @@
+# 관측 스택 - Prometheus(수집) + Grafana(대시보드)
+# 로컬 검증과 부하발생기 EC2에 같은 구성으로 올라간다
+services:
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: obs-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      # k6가 클라이언트 관점 메트릭을 밀어넣는 수신구 (k6 --out experimental-prometheus-rw)
+      - --web.enable-remote-write-receiver
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: obs-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # 테스트 전용 스택 - 로그인 생략 (EC2에선 보안그룹이 내 IP만 허용)
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      # 시작스토리 실험 - 10초 이벤트를 실시간으로 보려면 1초 갱신 허용 필요 (기본 하한 5초)
+      - GF_DASHBOARDS_MIN_REFRESH_INTERVAL=1s
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro

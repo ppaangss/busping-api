@@ -1,0 +1,12 @@
+# 수집 주기 1초 - 로컬 시작스토리 실험(10초 블랙아웃)을 그래프로 보려면 초 단위 필요
+# EC2 본실험에선 5초로 되돌릴지 그때 판단
+global:
+  scrape_interval: 1s
+
+scrape_configs:
+  # 앱 서버 메트릭 (Actuator)
+  # 로컬 검증용 타깃 - EC2에선 deploy 스크립트가 앱 프라이빗 IP 2개로 치환한다
+  - job_name: app
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ["host.docker.internal:8081"] # 로컬: actuator 전용 포트 (dev 프로파일)

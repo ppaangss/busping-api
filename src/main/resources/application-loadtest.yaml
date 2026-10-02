@@ -1,0 +1,8 @@
+# 부하테스트 프로파일 - 실제 클라이언트 경로(RestTemplate)로 mock TAGO를 호출한다
+#   dev 전용 가짜 빈(FakeTagoArrivalClient)은 이 프로파일에서 조립되지 않는다
+#   TAGO 주소는 환경변수 TAGO_ARRIVAL_BASE_URL로 mock 인스턴스를 주입
+#   FCM은 측정 제외 - FakeFcmService(로그 발송)가 이 프로파일에도 조립됨
+#   쿨다운은 base의 운영값(600초) 그대로 적용
+tago:
+  api:
+    key: ${TAGO_API_KEY:mock-key-not-used} # mock TAGO는 인증을 검사하지 않는다
