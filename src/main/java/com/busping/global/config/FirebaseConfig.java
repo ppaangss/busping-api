@@ -29,7 +29,8 @@ public class FirebaseConfig {
         }
 
         File credentialsFile = new File(credentialsPath);
-        if (!credentialsFile.exists()) {
+        // isFile - 경로가 없거나 디렉터리면 스킵 (도커 바인드 마운트가 없는 파일을 빈 디렉터리로 만드는 경우 방어)
+        if (!credentialsFile.isFile()) {
             log.warn("[FCM] Firebase 자격증명 파일 없음 (path={}) - FCM 발송 비활성 상태로 부팅", credentialsPath);
             return;
         }

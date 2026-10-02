@@ -34,6 +34,7 @@ services:
     container_name: station-app
     ports:
       - "8080:8080"
+      - "8081:8081"  # actuator 전용 (dev 프로파일 management.server.port)
     env_file:
       - .env
     depends_on:
@@ -49,6 +50,10 @@ services:
       DB_PASSWORD: ${MYSQL_PASSWORD}
       REDIS_HOST: redis
       FIREBASE_CREDENTIALS_PATH: /app/serviceAccountKey.json
+      # FCM 장애 실험(02) 스위치 - 미지정 시 0(평시). 고정 지연은 MS 하나, 랜덤 범위는 MIN/MAX
+      FCM_FAKE_LATENCY_MS: ${FCM_FAKE_LATENCY_MS:-0}
+      FCM_FAKE_LATENCY_MIN_MS: ${FCM_FAKE_LATENCY_MIN_MS:-${FCM_FAKE_LATENCY_MS:-0}}
+      FCM_FAKE_LATENCY_MAX_MS: ${FCM_FAKE_LATENCY_MAX_MS:-${FCM_FAKE_LATENCY_MS:-0}}
       
 
 volumes:
