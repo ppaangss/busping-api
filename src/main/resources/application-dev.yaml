@@ -6,4 +6,8 @@ tago:
   fake-latency-ms: 0
 
 alarm:
-  cooldown-seconds: 30  # dev에선 30초마다 재알림 (운영 600초)
+  cooldown-seconds: 30  # dev에선 쿨다운 30초로 짧게 - 반복 테스트 편의 (운영 600초)
+
+management:
+  server:
+    port: 8081  # actuator 분리 - 톰캣(8080)이 포화돼도 scrape가 줄 서지 않게 (02 실험에서 수집 공백 9초 관측)
