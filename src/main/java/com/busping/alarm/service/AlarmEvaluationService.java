@@ -9,9 +9,14 @@ import com.busping.favorite.domain.Favorite;
 import com.busping.favorite.domain.FavoriteRepository;
 import com.busping.global.external.fcm.FcmPort;
 import com.busping.global.util.DistanceUtils;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.Instant;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,10 +35,37 @@ public class AlarmEvaluationService {
 
     private static final int RADIUS_METERS = 500;
 
+    /** 손절선 TTL - 접수 후 이 시간이 지난 이벤트는 배달해도 가치가 없다 (가치 곡선의 0점, 02/수치.md) */
+    private static final Duration EVENT_TTL = Duration.ofSeconds(30);
+
     private final FavoriteRepository favoriteRepository;
     private final ArrivalService arrivalService;
     private final AlarmCooldownManager cooldownManager;
     private final FcmPort fcmService;
+    private final MeterRegistry meterRegistry;
+
+    /**
+     * 비동기 진입점 - 호출은 즉시 반환되고, 평가는 alarmExecutor 워커에서 실행된다.
+     *
+     * 호출자 계약: receivedAt은 반드시 "제출하는 순간"의 Instant.now()여야 한다.
+     * (이 메서드 안에서 찍으면 이미 워커 실행 중이라 큐 대기 시간이 빠져 TTL이 무의미해짐)
+     */
+    @Async("alarmExecutor")
+    public void evaluateAsync(Device device, double latitude, double longitude, Instant receivedAt) {
+
+        // 손절선 - 큐에서 늙어버린 이벤트는 평가 없이 버린다 (유저는 이미 직접 앱을 열었다)
+        if (Duration.between(receivedAt, Instant.now()).compareTo(EVENT_TTL) > 0) {
+            meterRegistry.counter("alarm.stale.skipped").increment();
+            return;
+        }
+
+        try {
+            evaluate(device, latitude, longitude);
+        } catch (Exception e) {
+            // @Async 메서드의 예외는 호출자에게 돌아가지 않는다 - 여기서 삼키지 않으면 증발
+            log.error("[ALARM] 비동기 평가 실패 - {}", e.getMessage(), e);
+        }
+    }
 
     // 외부 호출(TAGO·FCM)이 낀 플로우 - 트랜잭션으로 묶지 않아 커넥션 점유를 쿼리 순간으로 제한
     public void evaluate(Device device, double latitude, double longitude) {

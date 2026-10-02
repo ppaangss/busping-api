@@ -88,6 +88,6 @@ public abstract class IntegrationTestSupport {
                         .header(DEVICE_HEADER, deviceId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"latitude\":%f,\"longitude\":%f}".formatted(latitude, longitude)))
-                .andExpect(status().isOk());
+                .andExpect(status().isAccepted()); // 비동기 전환 후 접수는 202 - 평가 완료가 아니라 접수 확인
     }
 }
