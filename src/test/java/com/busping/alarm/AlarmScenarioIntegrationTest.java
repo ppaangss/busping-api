@@ -10,6 +10,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -17,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * C-2 알람 시나리오 - "접근 1회 = 쿨다운 창 안에서 정확히 1회 발송"을 실 Redis TTL로 검증한다.
- * 쿨다운을 2초로 줄여 창 만료(재알림)까지 테스트한다.
+ * 쿨다운을 2초로 줄여 창 만료 후 재진입(새 알람)까지 테스트한다.
  */
 @TestPropertySource(properties = "alarm.cooldown-seconds=2")
 class AlarmScenarioIntegrationTest extends IntegrationTestSupport {
@@ -36,18 +38,20 @@ class AlarmScenarioIntegrationTest extends IntegrationTestSupport {
         String folderId = createFolder(deviceId, "출근길");
         addRoute(deviceId, folderId, "SC1", "FAKE-ROUTE", STATION_LAT, STATION_LNG);
 
+        // 비동기 전환 후: 평가가 워커에서 돌므로 timeout(발송 완료 대기) / after(안 왔음 확인)로 검증
+
         // 접근 1: 500m 안 - 발송 1회
         reportLocation(deviceId, STATION_LAT + 0.002, STATION_LNG); // 약 222m
-        verify(fcmService, times(1)).send(eq("scenario-token"), any(), any());
+        verify(fcmService, timeout(2000).times(1)).send(eq("scenario-token"), any(), any());
 
-        // 접근 2: 쿨다운(2초) 안 - 여전히 1회
+        // 접근 2: 쿨다운(2초) 안 - 여전히 1회 (700ms 기다려도 추가 발송 없음)
         reportLocation(deviceId, STATION_LAT + 0.001, STATION_LNG);
-        verify(fcmService, times(1)).send(eq("scenario-token"), any(), any());
+        verify(fcmService, after(700).times(1)).send(eq("scenario-token"), any(), any());
 
-        // 접근 3: 쿨다운 만료 후 - 재알림으로 2회
+        // 접근 3: 쿨다운 만료 후 재진입 - 새 알람으로 2회
         Thread.sleep(2500);
         reportLocation(deviceId, STATION_LAT + 0.001, STATION_LNG);
-        verify(fcmService, times(2)).send(eq("scenario-token"), any(), any());
+        verify(fcmService, timeout(2000).times(2)).send(eq("scenario-token"), any(), any());
     }
 
     @Test
@@ -66,6 +70,6 @@ class AlarmScenarioIntegrationTest extends IntegrationTestSupport {
 
         reportLocation(deviceId, STATION_LAT, STATION_LNG);
 
-        verify(fcmService, times(0)).send(eq("off-token"), any(), any());
+        verify(fcmService, after(700).times(0)).send(eq("off-token"), any(), any());
     }
 }

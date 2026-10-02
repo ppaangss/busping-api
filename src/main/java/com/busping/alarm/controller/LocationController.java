@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Instant;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/devices/me/location")
@@ -21,18 +23,21 @@ public class LocationController {
     private final AlarmEvaluationService alarmEvaluationService;
 
     /**
-     * 위치 이벤트 보고 - 위치는 저장하지 않고, 이 요청 안에서 알람 평가까지 수행한다 (이벤트 드리븐)
+     * 위치 이벤트 보고 - 접수만 하고 즉시 응답한다. 평가(TAGO·FCM)는 alarmExecutor 워커가 수행.
+     * 이 응답을 기다리는 사람은 아무도 없다 - 결과는 FCM 푸시라는 별도 채널로 배달된다.
      */
     @PostMapping
     public ResponseEntity<SuccessResponse<Void>> reportLocation(
             Device device,
             @Valid @RequestBody LocationReportRequest request
     ) {
-        alarmEvaluationService.evaluate(device, request.latitude(), request.longitude());
+        // receivedAt은 제출 순간에 찍는다 - 큐 대기 시간이 TTL 판정에 포함되도록 (호출자 계약)
+        alarmEvaluationService.evaluateAsync(
+                device, request.latitude(), request.longitude(), Instant.now());
 
         return SuccessResponse.of(
-                HttpStatus.OK,
-                "위치 이벤트가 처리되었습니다."
+                HttpStatus.ACCEPTED,
+                "위치 이벤트가 접수되었습니다."
         );
     }
 }
