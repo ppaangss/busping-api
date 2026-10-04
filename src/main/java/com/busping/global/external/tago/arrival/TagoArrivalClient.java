@@ -13,9 +13,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -41,22 +41,24 @@ public class TagoArrivalClient implements TagoArrivalPort {
      */
     public List<Arrival> fetchRealtimeArrivals(String cityCode, String nodeId) {
 
-        String url = UriComponentsBuilder
-                .fromHttpUrl(props.getArrival().getBaseUrl())
-                .path("/getSttnAcctoArvlPrearngeInfoList")
-                .queryParam("serviceKey", props.getApi().getKey())
-                .queryParam("cityCode", cityCode)
-                .queryParam("nodeId", nodeId)
-                .queryParam("numOfRows", props.getApi().getDefaultNumOfRows())
-                .queryParam("_type", props.getApi().getType())
-                .build(true)
-                .toUriString();
+        // 템플릿 + 변수 분리 호출 - http_client_requests의 uri 태그에 전개 전 템플릿이 기록된다
+        // (완성 URL로 넘기면 정류장마다 시계열이 쪼개져 increase() 집계가 새고, serviceKey가 라벨에 노출됨)
+        String uriTemplate = props.getArrival().getBaseUrl()
+                + "/getSttnAcctoArvlPrearngeInfoList"
+                + "?serviceKey={serviceKey}&cityCode={cityCode}&nodeId={nodeId}&numOfRows={numOfRows}&_type={type}";
+
+        Map<String, Object> uriVariables = Map.of(
+                "serviceKey", props.getApi().getKey(),
+                "cityCode", cityCode,
+                "nodeId", nodeId,
+                "numOfRows", props.getApi().getDefaultNumOfRows(),
+                "type", props.getApi().getType());
 
         try {
             long callNumber = callCount.incrementAndGet();
             long start = System.currentTimeMillis();
             ResponseEntity<String> response =
-                    restTemplate.getForEntity(url, String.class);
+                    restTemplate.getForEntity(uriTemplate, String.class, uriVariables);
             long elapsed = System.currentTimeMillis() - start;
             log.info("[TAGO] #{} {}ms (cityCode={}, nodeId={})", callNumber, elapsed, cityCode, nodeId);
 

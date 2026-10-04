@@ -479,6 +479,130 @@
         }
       ],
       "id": 5
+    },
+    {
+      "type": "timeseries",
+      "title": "요청 수 vs TAGO 호출 수 (03 계기판)",
+      "gridPos": {
+        "x": 0,
+        "y": 80,
+        "w": 24,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_ds"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{uri=\"/api/stations/{stationId}/realtime\"}[1m])) + sum(rate(http_server_requests_seconds_count{uri=\"/api/devices/me/location\"}[1m]))",
+          "legendFormat": "도착정보 수요/s (조회+알람)",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "sum(rate(http_client_requests_seconds_count[1m]))",
+          "legendFormat": "TAGO 실제 호출/s",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "sum(rate(http_server_requests_seconds_count{uri=\"/api/stations/{stationId}/realtime\"}[1m]))",
+          "legendFormat": "조회 요청/s (참고)",
+          "refId": "C"
+        }
+      ],
+      "id": 6
+    },
+    {
+      "type": "timeseries",
+      "title": "조회 체감 응답시간 (03)",
+      "gridPos": {
+        "x": 0,
+        "y": 88,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_ds"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "k6_http_req_duration_med{scenario=\"lookup\"}",
+          "legendFormat": "조회 p50 (캐시의 정직한 지표)",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "k6_http_req_duration_p95{scenario=\"lookup\"}",
+          "legendFormat": "조회 p95 (적중률 95%를 넘어야 움직임)",
+          "refId": "B"
+        }
+      ],
+      "id": 7
+    },
+    {
+      "type": "timeseries",
+      "title": "떨어뜨린 요청 (측정 유효성, 0이어야 비교 가능)",
+      "gridPos": {
+        "x": 12,
+        "y": 88,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_ds"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "sum by (scenario) (rate(k6_dropped_iterations_total[1m]))",
+          "legendFormat": "{{scenario}} 떨어뜨림/s",
+          "refId": "A"
+        }
+      ],
+      "id": 8
     }
   ]
 }

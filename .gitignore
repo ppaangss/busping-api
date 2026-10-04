@@ -61,3 +61,4 @@ serviceAccountKey.json
 
 # 부하테스트 시드 산출물 (UUID 목록 - 실험 로컬 전용)
 devices.txt
+devices-cache.csv

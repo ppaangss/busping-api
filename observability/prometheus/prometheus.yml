@@ -10,3 +10,4 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets: ["host.docker.internal:8081"] # 로컬: actuator 전용 포트 (dev 프로파일)
+      - targets: ["host.docker.internal:8080"] # 로컬: loadtest 프로파일은 actuator가 톰캣과 같은 8080 (8081은 mock TAGO)
