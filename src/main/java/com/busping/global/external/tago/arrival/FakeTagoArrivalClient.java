@@ -3,7 +3,6 @@ package com.busping.global.external.tago.arrival;
 import com.busping.arrival.domain.Arrival;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +15,8 @@ import java.util.List;
  */
 @Slf4j
 @Profile({"dev", "benchmark"})
-@Primary
-@Component
+@Component // primary는 캐시 데코레이터(ArrivalCacheConfig)가 가져가고, 이 빈은 그 안의 원 출처로 조립된다
+
 public class FakeTagoArrivalClient implements TagoArrivalPort {
 
     @Value("${tago.fake-latency-ms:0}")

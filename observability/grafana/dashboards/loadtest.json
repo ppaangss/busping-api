@@ -603,6 +603,81 @@
         }
       ],
       "id": 8
+    },
+    {
+      "type": "timeseries",
+      "title": "캐시 적중률 (03)",
+      "gridPos": {
+        "x": 0,
+        "y": 96,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_ds"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "sum(rate(arrival_cache_requests_total{result=\"hit\"}[1m])) / sum(rate(arrival_cache_requests_total[1m]))",
+          "legendFormat": "적중률 (시드 분포 가정과 함께 보고)",
+          "refId": "A"
+        }
+      ],
+      "id": 9
+    },
+    {
+      "type": "timeseries",
+      "title": "캐시 적중/미스 (건/s, 03)",
+      "gridPos": {
+        "x": 12,
+        "y": 96,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus_ds"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "min": 0
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "sum(rate(arrival_cache_requests_total{result=\"hit\"}[1m]))",
+          "legendFormat": "적중/s (캐시가 받아낸 양)",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus_ds"
+          },
+          "expr": "sum(rate(arrival_cache_requests_total{result=\"miss\"}[1m]))",
+          "legendFormat": "미스/s (TAGO로 간 양)",
+          "refId": "B"
+        }
+      ],
+      "id": 10
     }
   ]
 }

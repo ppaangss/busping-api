@@ -36,6 +36,9 @@ tago:
 alarm:
   cooldown-seconds: 600 # 중복 발송 방지 쿨다운 TTL - 경계 플래핑 재호출에도 진입당 알람 1회
 
+arrival-cache:
+  ttl-seconds: 15 # 조회 자동 갱신 주기(30초)보다 짧게 - 재조회 시 자기 캐시는 반드시 만료, 적중은 남이 만든 더 새로운 데이터
+
 firebase:
   credentials-path: ${FIREBASE_CREDENTIALS_PATH:serviceAccountKey.json}
 
