@@ -15,7 +15,7 @@ resource "local_file" "ssh_pem" {
   file_permission = "0600"
 }
 
-# ---- AMI - Amazon Linux 2023 (앱·부하발생기 x86, redis는 t4g라 arm) ----
+# ---- AMI - Amazon Linux 2023 (앱·부하발생기 x86, redis·db·mock은 t4g라 arm) ----
 
 data "aws_ami" "al2023_x86" {
   most_recent = true
@@ -37,14 +37,14 @@ data "aws_ami" "al2023_arm" {
   }
 }
 
-# ---- 앱 서버 2대 - AZ 분산 (가용성 테스트의 전제) ----
+# ---- 앱 서버 1대 - 측정 대상 ----
+# 1대인 이유: 측정은 단위 용량(톰캣 200 하나의 한계)을 재는 것 - 운영 대수는 거기서 나눗셈
+# 기종은 운영 후보와 동일(t3.small) - 측정의 절대 숫자가 운영 예보가 되려면 기계가 같아야 한다
 
 resource "aws_instance" "app" {
-  count = 2
-
   ami                    = data.aws_ami.al2023_x86.id
   instance_type          = "t3.small"
-  subnet_id              = aws_subnet.public[count.index].id
+  subnet_id              = aws_subnet.public[0].id
   vpc_security_group_ids = [aws_security_group.app.id]
   key_name               = aws_key_pair.main.key_name
 
@@ -53,7 +53,7 @@ resource "aws_instance" "app" {
     dnf install -y java-17-amazon-corretto-headless
   EOF
 
-  tags = { Name = "${var.name_prefix}-app-${count.index + 1}" }
+  tags = { Name = "${var.name_prefix}-app" }
 }
 
 # ---- Redis 1대 - 네이티브 설치, 바인드 개방 (접근 통제는 SG가 담당) ----
@@ -134,12 +134,3 @@ resource "aws_instance" "mock" {
   tags = { Name = "${var.name_prefix}-mock" }
 }
 
-# ALB 80 <- 부하발생기 공인 IP
-# (부하발생기는 ALB의 공인 DNS로 요청하므로 SG 참조가 아니라 공인 IP로 허용해야 한다)
-resource "aws_vpc_security_group_ingress_rule" "alb_http_loadgen" {
-  security_group_id = aws_security_group.alb.id
-  cidr_ipv4         = "${aws_instance.loadgen.public_ip}/32"
-  from_port         = 80
-  to_port           = 80
-  ip_protocol       = "tcp"
-}

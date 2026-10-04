@@ -11,17 +11,9 @@ locals {
 # 전 리소스가 퍼블릭 서브넷에 있으므로 격리는 전부 여기서 담당한다.
 # SG 설명(description)은 AWS가 ASCII만 허용해서 영문.
 
-resource "aws_security_group" "alb" {
-  name        = "${var.name_prefix}-alb-sg"
-  description = "ALB - http from admin ip and load generator only"
-  vpc_id      = aws_vpc.main.id
-
-  tags = { Name = "${var.name_prefix}-alb-sg" }
-}
-
 resource "aws_security_group" "app" {
   name        = "${var.name_prefix}-app-sg"
-  description = "app servers - 8080 from alb, ssh from admin ip"
+  description = "app server - 8080 from load generator and admin ip, ssh from admin ip"
   vpc_id      = aws_vpc.main.id
 
   tags = { Name = "${var.name_prefix}-app-sg" }
@@ -35,12 +27,12 @@ resource "aws_security_group" "redis" {
   tags = { Name = "${var.name_prefix}-redis-sg" }
 }
 
-resource "aws_security_group" "rds" {
-  name        = "${var.name_prefix}-rds-sg"
-  description = "rds - 3306 from app and load generator"
+resource "aws_security_group" "db" {
+  name        = "${var.name_prefix}-db-sg"
+  description = "db - 3306 from app and load generator, ssh from admin ip"
   vpc_id      = aws_vpc.main.id
 
-  tags = { Name = "${var.name_prefix}-rds-sg" }
+  tags = { Name = "${var.name_prefix}-db-sg" }
 }
 
 resource "aws_security_group" "loadgen" {
@@ -61,22 +53,22 @@ resource "aws_security_group" "mock" {
 
 # ---- 인그레스 규칙 ----
 
-# ALB 80 <- 내 IP (부하발생기 -> ALB 규칙은 인스턴스 생성 후 공인 IP를 알아야 해서 compute 쪽에서 추가)
-resource "aws_vpc_security_group_ingress_rule" "alb_http_admin" {
-  security_group_id = aws_security_group.alb.id
-  cidr_ipv4         = local.my_ip_cidr
-  from_port         = 80
-  to_port           = 80
-  ip_protocol       = "tcp"
-}
-
-# 앱 8080 <- ALB만
-resource "aws_vpc_security_group_ingress_rule" "app_from_alb" {
+# 앱 8080 <- 부하발생기 (ALB 없이 직접 - 테스트 진입점)
+resource "aws_vpc_security_group_ingress_rule" "app_from_loadgen" {
   security_group_id            = aws_security_group.app.id
-  referenced_security_group_id = aws_security_group.alb.id
+  referenced_security_group_id = aws_security_group.loadgen.id
   from_port                    = 8080
   to_port                      = 8080
   ip_protocol                  = "tcp"
+}
+
+# 앱 8080 <- 내 IP (드라이런·디버깅)
+resource "aws_vpc_security_group_ingress_rule" "app_http_admin" {
+  security_group_id = aws_security_group.app.id
+  cidr_ipv4         = local.my_ip_cidr
+  from_port         = 8080
+  to_port           = 8080
+  ip_protocol       = "tcp"
 }
 
 # 앱 SSH <- 내 IP
@@ -106,22 +98,31 @@ resource "aws_vpc_security_group_ingress_rule" "redis_ssh_admin" {
   ip_protocol       = "tcp"
 }
 
-# RDS 3306 <- 앱
-resource "aws_vpc_security_group_ingress_rule" "rds_from_app" {
-  security_group_id            = aws_security_group.rds.id
+# DB 3306 <- 앱
+resource "aws_vpc_security_group_ingress_rule" "db_from_app" {
+  security_group_id            = aws_security_group.db.id
   referenced_security_group_id = aws_security_group.app.id
   from_port                    = 3306
   to_port                      = 3306
   ip_protocol                  = "tcp"
 }
 
-# RDS 3306 <- 부하발생기 (시드 20만 행 투입용)
-resource "aws_vpc_security_group_ingress_rule" "rds_from_loadgen" {
-  security_group_id            = aws_security_group.rds.id
+# DB 3306 <- 부하발생기 (시드 대량 투입용)
+resource "aws_vpc_security_group_ingress_rule" "db_from_loadgen" {
+  security_group_id            = aws_security_group.db.id
   referenced_security_group_id = aws_security_group.loadgen.id
   from_port                    = 3306
   to_port                      = 3306
   ip_protocol                  = "tcp"
+}
+
+# DB SSH <- 내 IP (도커 컨테이너 디버깅)
+resource "aws_vpc_security_group_ingress_rule" "db_ssh_admin" {
+  security_group_id = aws_security_group.db.id
+  cidr_ipv4         = local.my_ip_cidr
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
 }
 
 # 부하발생기 SSH <- 내 IP
@@ -155,10 +156,9 @@ resource "aws_vpc_security_group_ingress_rule" "mock_ssh_admin" {
 
 resource "aws_vpc_security_group_egress_rule" "all" {
   for_each = {
-    alb     = aws_security_group.alb.id
     app     = aws_security_group.app.id
     redis   = aws_security_group.redis.id
-    rds     = aws_security_group.rds.id
+    db      = aws_security_group.db.id
     loadgen = aws_security_group.loadgen.id
     mock    = aws_security_group.mock.id
   }
