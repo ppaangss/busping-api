@@ -50,7 +50,7 @@ resource "aws_instance" "app" {
 
   user_data = <<-EOF
     #!/bin/bash
-    dnf install -y java-17-amazon-corretto-headless
+    dnf install -y java-21-amazon-corretto-headless
   EOF
 
   tags = { Name = "${var.name_prefix}-app" }

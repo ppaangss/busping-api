@@ -1,1 +1,6 @@
+plugins {
+	// 로컬에 해당 버전 JDK가 없어도 toolchain이 자동으로 받아오게 한다
+	id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
 rootProject.name = 'bus-ping'

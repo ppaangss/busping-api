@@ -22,6 +22,10 @@ spring:
     show-sql: false
     open-in-view: false  # 영속성 컨텍스트를 요청 전체로 늘리지 않는다 - 트랜잭션 밖 커넥션 점유 차단
 
+  threads:
+    virtual:
+      enabled: true # 요청당 가상 스레드 - TAGO 대기(1.3초)가 톰캣 슬롯 대신 힙 위 접힌 스택을 점유
+
 tago:
   api:
     type: ${TAGO_API_TYPE:json}

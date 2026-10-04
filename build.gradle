@@ -10,7 +10,7 @@ description = 'BusPing - Backend API for notifying users when approaching target
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
