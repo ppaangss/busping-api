@@ -3,7 +3,6 @@
 tago:
   api:
     key: fake-key-not-used  # fake 클라이언트라 실제로 쓰이지 않는다
-  fake-latency-ms: 0
 
 alarm:
   cooldown-seconds: 30  # dev에선 쿨다운 30초로 짧게 - 반복 테스트 편의 (운영 600초)

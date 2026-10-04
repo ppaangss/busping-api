@@ -44,7 +44,6 @@ services:
       - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
     environment:
       SPRING_PROFILES_ACTIVE: dev
-#      ,benchmark
       DB_URL: jdbc:mysql://mysql:3306/station_alarm?serverTimezone=Asia/Seoul
       DB_USERNAME: ${MYSQL_USER}
       DB_PASSWORD: ${MYSQL_PASSWORD}
